@@ -5,7 +5,7 @@ public class Cauldron {
 	private boolean isUsable;
   //private int capacity; for max ingredients
 	private String concoctionBase;
-	private ArrayList<String> ingredients;
+	private ArrayList<Ingredient> ingredients;
 	private boolean isBrewSuccess;
 	private int cauldronNum;
 	private final int price;
@@ -32,11 +32,11 @@ public class Cauldron {
 		this.concoctionBase = concoctionBase;
 	}
 	
-	public ArrayList<String> getIngredients() {
+	public ArrayList<Ingredient> getIngredients() {
 		return ingredients;
 	}
 
-	public void setIngredients(ArrayList<String> ingredients) {
+	public void setIngredients(ArrayList<Ingredient> ingredients) {
 		this.ingredients = ingredients;
 	}
 
@@ -60,13 +60,13 @@ public class Cauldron {
 		return price;
 	}
 
-	public void addIngredients(String ingredient) {
+	public void addIngredients(Ingredient ingredient) {
 		if(ingredients.size() == 3) {
 			System.out.println("Cauldron is full!");
 		}else {
 			boolean isDuplicate = false;
 			for(int i = 0; i < ingredients.size() && isDuplicate != true; i++) {
-				if(ingredient == ingredients.get(i)){
+				if(ingredient.getName() == ingredients.get(i).getName()){
 					isDuplicate = true;
 				}
 			}

@@ -22,7 +22,7 @@ public class Spellbook {
 		    for (i = 1; i < unlockedRecipes.size(); i++) {
 		        Recipe tmp = unlockedRecipes.get(i);
 		        j = i;
-		        while ((j > 0) && (unlockedRecipes.get(j - 1).concoctionID > tmp.concoctionID)) {
+		        while ((j > 0) && (unlockedRecipes.get(j - 1).getConcoctionID() > tmp.getConcoctionID())) {
 		        	unlockedRecipes.set(j, unlockedRecipes.get(j - 1));
 		            j--;
 		        }
@@ -34,7 +34,7 @@ public class Spellbook {
 		int lo = 0;
 		int hi = unlockedRecipes.size() - 1;
 		
-		while(low <= high) {
+		while(lo <= hi) {
 			int mid = lo + (hi - lo) / 2;
 			
 			if(id == unlockedRecipes.get(mid).getConcoctionID()) {

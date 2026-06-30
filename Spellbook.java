@@ -53,7 +53,7 @@ public class Spellbook {
 			System.out.println(unlockedRecipes.get(i).getConcoctionID() + unlockedRecipes.get(i).getName() + "\t" + unlockedRecipes.get(i).getPrice());
 			System.out.println("\t" + unlockedRecipes.get(i).getConcoctionBase() + "\n");
 			for(int j = 0; j < unlockedRecipes.get(i).getIngredients().size(); j++) {
-				System.out.print(unlockedRecipes.get(i).getIngredients().get(j) + " ");
+				System.out.print("\t" + unlockedRecipes.get(i).getIngredients().get(j).getName() + " ");
 			}
 		}
 	}

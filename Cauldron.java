@@ -97,4 +97,15 @@ public class Cauldron {
 		this.concoctionBase = null;
 		this.ingredients.removeAll(ingredients);
 	}
+	
+	
+	//don't give this option to the player if there are no cauldrons to be blessed
+	public void blessCauldron(Player player) {
+		if(player.getCrystals() == 1000) {
+			setUsable(true);
+			System.out.println("Cauldron Blessed!");
+		}else {
+			System.out.println("You do not have enough crystals.");
+		}
+	}
 }

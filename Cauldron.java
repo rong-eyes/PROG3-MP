@@ -3,17 +3,14 @@ import java.util.ArrayList;
 
 public class Cauldron {
 	private boolean isUsable;
-  //private int capacity; for max ingredients
-	private String concoctionBase;
+	private Base concoctionBase;
 	private ArrayList<Ingredient> ingredients;
 	private boolean isBrewSuccess;
-	private int cauldronNum;
-	private final int price;
+	private int cauldronNum;					//To select a cauldron in brew or bless				
 	
 	public Cauldron() {
 		isUsable = true;
 		isBrewSuccess = true; //evaluated to 'true' so that the player is free to brew
-		price = 3000;
 	}
 
 	public boolean isUsable() {
@@ -24,11 +21,11 @@ public class Cauldron {
 		this.isUsable = isUsable;
 	}
 
-	public String getConcoctionBase() {
+	public Base getConcoctionBase() {
 		return concoctionBase;
 	}
 
-	public void setConcoctionBase(String concoctionBase) {
+	public void setConcoctionBase(Base concoctionBase) {
 		this.concoctionBase = concoctionBase;
 	}
 	
@@ -56,11 +53,7 @@ public class Cauldron {
 		this.cauldronNum = cauldronNum;
 	}
 	
-	public int getPrice() {
-		return price;
-	}
-
-	public void addIngredients(Ingredient ingredient) {
+	public void addIngredients(Ingredient ingredient, Inventory inventory) {
 		if(ingredients.size() == 3) {
 			System.out.println("Cauldron is full!");
 		}else {
@@ -74,21 +67,28 @@ public class Cauldron {
 			if(isDuplicate) {
 				System.out.println("Ingredient already in the Cauldron!");
 			}else {
+				int index;
 				ingredients.add(ingredient);
-				//LINE FOR TAKING FROM INVENTORY
+				inventory.removeInventory(ingredient,1);
+				index = inventory.isInInventory(ingredient.getName(), inventory.getIngredients());
+				System.out.println(ingredient.getName() + " Added! Remaining:" + inventory.getIngredients().get(index).getQuantity());
 			}
 		}
 	}
 	
-	public void removeIngredient(int index) {
+	public void removeIngredient(int index, Inventory inventory) {
 		if(ingredients.size() == 0) {
 			System.out.println("Nothing to Remove.");
 		}else {
+				inventory.addInventory(ingredients.get(index),1);
 				ingredients.remove(index);
-		//LINE TO ADD IT BACK TO INVENTORY
 		}
 	}
 	
-	
+	public void addBase(String base, Inventory inventory) { //cannot remove base since its the start, just accept it <3
+		concoctionBase.setName(base);
+		concoctionBase.setQuantity(1);
+		inventory.removeInventory(concoctionBase, 1);
+	}
 	
 }

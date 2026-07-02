@@ -5,12 +5,10 @@ public class Cauldron {
 	private boolean isUsable;
 	private Base concoctionBase;
 	private ArrayList<Ingredient> ingredients;
-	private boolean isBrewSuccess;
 	private int cauldronNum;					//To select a cauldron in brew or bless				
 	
 	public Cauldron() {
 		isUsable = true;
-		isBrewSuccess = true; //evaluated to 'true' so that the player is free to brew
 	}
 
 	public boolean isUsable() {
@@ -35,14 +33,6 @@ public class Cauldron {
 
 	public void setIngredients(ArrayList<Ingredient> ingredients) {
 		this.ingredients = ingredients;
-	}
-
-	public boolean isBrewSuccess() {
-		return isBrewSuccess;
-	}
-
-	public void setBrewSuccess(boolean isBrewSuccess) {
-		this.isBrewSuccess = isBrewSuccess;
 	}
 
 	public int getCauldronNum() {
@@ -91,4 +81,20 @@ public class Cauldron {
 		inventory.removeInventory(concoctionBase, 1);
 	}
 	
+	public Recipe validBrew(ArrayList<Recipe> Recipe) {
+		for(int i = 0; i < Recipe.size(); i++) {
+			if(Recipe.get(i).getIngredients().size() == this.ingredients.size()) {
+				if(Recipe.get(i).getIngredients() == this.ingredients && Recipe.get(i).getConcoctionBase() == this.concoctionBase) {
+					return Recipe.get(i);
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	public void cauldronFlush() {
+		this.concoctionBase = null;
+		this.ingredients.removeAll(ingredients);
+	}
 }

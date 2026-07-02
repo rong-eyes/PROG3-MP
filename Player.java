@@ -10,7 +10,8 @@ public class Player {
 	
 	public Player(String name) { //for new game instantiation
 		playerName = name;
-		crystals = 3000;
+		inventory = new Inventory();
+		spellbook = new Spellbook();
 	}
 	
 	public Player(String name, Inventory inventory, int crystals, Spellbook sb) { //for file loading
@@ -56,13 +57,13 @@ public class Player {
 		
 		if(isCreative) {
 			boolean isCancel = false;
-			char var = 'N';
-			
-			//ADD A WAY TO CANCEL ANYTIME
-			while(!isCancel) {
+			char var = ' ';
+			boolean selectedBase = false;
+
+			while(!isCancel && !selectedBase) {
 				//Base Selection
 				System.out.println("Choose a Base: 1. SYRUP  2. BUBBLE  3. PERFUME  4. MILK  5. LOTION");
-				while(opt < 1 && opt >= 6) {
+				while(opt < 1 || opt >= 6) {
 					try {
 						opt = s.nextInt();
 						switch(opt) {
@@ -70,26 +71,31 @@ public class Player {
 							tmp = inventory.isInInventory("Syrup Base", inventory.getBases()); //returns index of where it is in the ArrayList
 							if(tmp > -1)
 								cauldron.addBase(inventory.getBases().get(tmp).getName(), inventory);
+							selectedBase = true;
 							break;
 						case 2:
 							tmp = inventory.isInInventory("Bubble Base", inventory.getBases()); //returns index of where it is in the ArrayList
 							if(tmp > -1)
 								cauldron.addBase(inventory.getBases().get(tmp).getName(), inventory);
+							selectedBase = true;
 							break;
 						case 3:
 							tmp = inventory.isInInventory("Perfume Base", inventory.getBases()); //returns index of where it is in the ArrayList
 							if(tmp > -1)
 								cauldron.addBase(inventory.getBases().get(tmp).getName(), inventory);
+							selectedBase = true;
 							break;
 						case 4:
 							tmp = inventory.isInInventory("Milk Base", inventory.getBases()); //returns index of where it is in the ArrayList
 							if(tmp > -1)
 								cauldron.addBase(inventory.getBases().get(tmp).getName(), inventory);
+							selectedBase = true;
 							break;
 						case 5:
 							tmp = inventory.isInInventory("Lotion Base", inventory.getBases()); //returns index of where it is in the ArrayList
 							if(tmp > -1)
 								cauldron.addBase(inventory.getBases().get(tmp).getName(), inventory);
+							selectedBase = true;
 							break;
 						default:
 							System.out.println("Invalid Input. Try Again.");
@@ -99,12 +105,12 @@ public class Player {
 					}
 				}
 				
-				while(var != 'Y' || var != 'N') {
-					System.out.println("Cancel Order (Y/N)?: ");
+				while(var != 'Y' && var != 'N') {
+					System.out.println("Cancel Brew (Y/N)?: ");
 					var = s.next().charAt(0);
 					if(var == 'Y')
 						isCancel = true;
-					else if (var != 'N' || var != 'Y')
+					else if (var != 'N' && var != 'Y')
 						System.out.println("Invalid Input");
 						
 				}
@@ -114,14 +120,20 @@ public class Player {
 				inventory.addInventory(cauldron.getConcoctionBase(), 1);
 			}
 			
-			while(!isCancel) {
+			char again = 'Y';
+			boolean done = false;
+			while(!isCancel && again != 'N' && !done) {
 				//Ingredients Selection
-				char again = 'Y';
+				
+				//BIG BUG DISPLAYS DOES NOT HAVE INGREDIENT EVERY TIME DESPITE HAVING STOCK 
+				
 				System.out.println("Choose an Ingredient: (No Duplicates!)");
 				System.out.println("1. STRAWBERRY  2. ORANGE  3. LEMON  4. BANANA  5. MANGO\n"
 						         + "6. PINEAPPLE  7. KIWI  8. BLUEBERRY  9. COCONUT");
-				
-				while(opt < 1 && opt >= 10 && again == 'Y' && cauldron.getIngredients().size() != 3) {
+				boolean added = false;
+				opt = 0;
+				while((opt < 1 || opt >= 10) && !added && cauldron.getIngredients().size() != 3) {
+					opt = 0;
 					try {
 						opt = s.nextInt();
 						switch(opt) {
@@ -129,7 +141,7 @@ public class Player {
 							tmp = inventory.isInInventory("Strawberry", inventory.getIngredients()); //returns index of where it is in the ArrayList
 							if(tmp > -1) {
 								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								again = s.next().charAt(0);
+								added = true;
 							} else 
 								System.out.println("You don't have this ingredient.");
 							break;
@@ -137,7 +149,7 @@ public class Player {
 							tmp = inventory.isInInventory("Orange", inventory.getIngredients()); //returns index of where it is in the ArrayList
 							if(tmp > -1) {
 								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								again = s.next().charAt(0);
+								added = true;
 							} else 
 								System.out.println("You don't have this ingredient.");
 							break;
@@ -145,7 +157,7 @@ public class Player {
 							tmp = inventory.isInInventory("Lemon", inventory.getIngredients()); //returns index of where it is in the ArrayList
 							if(tmp > -1) {
 								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								again = s.next().charAt(0);
+								added = true;
 							} else 
 								System.out.println("You don't have this ingredient.");
 							break;
@@ -153,7 +165,7 @@ public class Player {
 							tmp = inventory.isInInventory("Banana", inventory.getIngredients()); //returns index of where it is in the ArrayList
 							if(tmp > -1) {
 								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								again = s.next().charAt(0);
+								added = true;
 							} else 
 								System.out.println("You don't have this ingredient.");
 							break;
@@ -161,7 +173,7 @@ public class Player {
 							tmp = inventory.isInInventory("Mango", inventory.getIngredients()); //returns index of where it is in the ArrayList
 							if(tmp > -1) {
 								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								again = s.next().charAt(0);
+								added = true;
 							} else 
 								System.out.println("You don't have this ingredient.");
 							break;
@@ -169,7 +181,7 @@ public class Player {
 							tmp = inventory.isInInventory("Pineapple", inventory.getIngredients()); //returns index of where it is in the ArrayList
 							if(tmp > -1) {
 								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								again = s.next().charAt(0);
+								added = true;
 							} else 
 								System.out.println("You don't have this ingredient.");
 							break;
@@ -177,7 +189,7 @@ public class Player {
 							tmp = inventory.isInInventory("Kiwi", inventory.getIngredients()); //returns index of where it is in the ArrayList
 							if(tmp > -1) {
 								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								again = s.next().charAt(0);
+								added = true;
 							} else 
 								System.out.println("You don't have this ingredient.");
 							break;
@@ -185,7 +197,7 @@ public class Player {
 							tmp = inventory.isInInventory("Blueberry", inventory.getIngredients()); //returns index of where it is in the ArrayList
 							if(tmp > -1) {
 								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								again = s.next().charAt(0);
+								added = true;
 							} else 
 								System.out.println("You don't have this ingredient.");
 							break;
@@ -193,26 +205,39 @@ public class Player {
 							tmp = inventory.isInInventory("Coconut", inventory.getIngredients()); //returns index of where it is in the ArrayList
 							if(tmp > -1) {
 								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								again = s.next().charAt(0);
+								added = true;
 							} else 
 								System.out.println("You don't have this ingredient.");
 							break;
 						default:
 							System.out.println("Invalid Input. Try Again.");
+							break;
 						}
 					}catch (Exception e){
 						System.out.println("Invalid Input.");
 					}
+					
+					if(cauldron.getIngredients().size() == 3) {
+						System.out.println("Cauldron Full!");
+						again = 'N';
+					}else if (added) {
+						System.out.println("Continue Adding Ingredients? (Y/N)");
+		                again = s.next().charAt(0);
+					}
 				}
-				
-				while(var != 'Y' || var != 'N') {
-					System.out.println("Cancel Order (Y/N)?: ");
-					var = s.next().charAt(0);
-					if(var == 'Y')
-						isCancel = true;
-					else if (var != 'N' || var != 'Y')
-						System.out.println("Invalid Input");
-						
+				if (again == 'N' || !added) {
+					var = ' ';
+					while(var != 'Y' && var != 'N') {
+						System.out.println("Cancel Brew (Y/N)?: ");
+						var = s.next().charAt(0);
+						if(var == 'Y') {
+							isCancel = true;	
+							done = true;
+						}
+						else if (var != 'N' && var != 'Y'){
+							System.out.println("Invalid Input");
+						}
+					}
 				}
 			}
 			
@@ -224,8 +249,8 @@ public class Player {
 			
 			if(!isCancel) {
 			System.out.println("Confirm Brew (Y/N)?: ");
-			
-				while(var != 'Y' || var != 'N') {
+			var = ' ';
+				while(var != 'Y' && var != 'N') {
 					var = s.next().charAt(0);
 					if(var == 'N') {
 						inventory.addInventory(cauldron.getConcoctionBase(), 1);
@@ -250,12 +275,11 @@ public class Player {
 						cauldron.cauldronFlush();
 					}
 				}
-			}
+			} 
+			
+			
 		}
-		
-		//RECIPE MODE 
-		
-		else {
+			else { //RECIPE MODE 
 			Recipe temp;
 			spellbook.printRecipes();
 			System.out.println("Enter the Recipe ID to Brew:");
@@ -265,6 +289,13 @@ public class Player {
 					temp = spellbook.getRecipe(opt);
 					cauldron.setConcoctionBase(temp.getConcoctionBase());
 					cauldron.setIngredients(temp.getIngredients());
+					inventory.removeInventory(temp.getConcoctionBase(), 1);
+					for(int i = 0; i < temp.getIngredients().size(); i++) {
+						inventory.removeInventory(temp.getIngredients().get(i), 1);
+					}
+					
+					setCrystals(getCrystals() + temp.getPrice());
+					System.out.println(temp.getName() + "successfully brewed! + " + temp.getPrice() + "crystals");
 				}else {
 					System.out.println("Invalid Input!");
 				}

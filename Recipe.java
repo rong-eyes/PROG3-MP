@@ -8,10 +8,10 @@ public class Recipe {
 	private final int price;
 	private final ArrayList<Ingredient> ingredients;//ArrayList of ingredients; can be one, can be 3
 	
-	public Recipe(int id, String name, Base concoctionBase, int price, ArrayList<Ingredient> ingredients) {
+	public Recipe(int id, String name, String concoctionBase, int price, ArrayList<Ingredient> ingredients) {
 		concoctionID = id;
 		this.name = name;
-		this.concoctionBase = concoctionBase;
+		this.concoctionBase = new Base(concoctionBase,1);
 		this.price = price;
 		this.ingredients = ingredients;
 	}

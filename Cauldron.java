@@ -9,6 +9,7 @@ public class Cauldron {
 	
 	public Cauldron() {
 		isUsable = true;
+		ingredients = new ArrayList<>();
 	}
 
 	public boolean isUsable() {
@@ -49,19 +50,20 @@ public class Cauldron {
 		}else {
 			boolean isDuplicate = false;
 			for(int i = 0; i < ingredients.size() && isDuplicate != true; i++) {
-				if(ingredient.getName() == ingredients.get(i).getName()){
+				if(ingredient.getName().equals(ingredients.get(i).getName())){
 					isDuplicate = true;
 				}
 			}
 			
 			if(isDuplicate) {
-				System.out.println("Ingredient already in the Cauldron!");
+				System.out.println(ingredient.getName() + "already in the Cauldron!");
 			}else {
 				int index;
-				ingredients.add(ingredient);
+				ingredients.add(new Ingredient(ingredient.getName(), 1));
 				inventory.removeInventory(ingredient,1);
 				index = inventory.isInInventory(ingredient.getName(), inventory.getIngredients());
-				System.out.println(ingredient.getName() + " Added! Remaining:" + inventory.getIngredients().get(index).getQuantity());
+				int remaining = (index == -1) ? 0 : inventory.getIngredients().get(index).getQuantity();
+				System.out.println(ingredient.getName() + " added! Remaining: " + remaining);
 			}
 		}
 	}
@@ -76,20 +78,38 @@ public class Cauldron {
 	}
 	
 	public void addBase(String base, Inventory inventory) { //cannot remove base since its the start, just accept it <3
-		concoctionBase.setName(base);
-		concoctionBase.setQuantity(1);
-		inventory.removeInventory(concoctionBase, 1);
+		this.concoctionBase = new Base(base, 1);
+		inventory.removeInventory(this.concoctionBase, 1);
 	}
 	
-	public Recipe validBrew(ArrayList<Recipe> Recipe) {
-		for(int i = 0; i < Recipe.size(); i++) {
-			if(Recipe.get(i).getIngredients().size() == this.ingredients.size()) {
-				if(Recipe.get(i).getIngredients() == this.ingredients && Recipe.get(i).getConcoctionBase() == this.concoctionBase) {
-					return Recipe.get(i);
+	public Recipe validBrew(ArrayList<Recipe> recipes) {
+		for(int i = 0; i < recipes.size(); i++) {
+			Recipe candidate = recipes.get(i);
+			if(candidate.getIngredients().size() != this.ingredients.size()) {
+				continue;
+			}
+			if(this.concoctionBase == null
+					|| !candidate.getConcoctionBase().getName().equals(this.concoctionBase.getName())) {
+				continue;
+			}
+			boolean allMatch = true;
+			for(int j = 0; j < candidate.getIngredients().size() && allMatch; j++) {
+				String needed = candidate.getIngredients().get(j).getName();
+				boolean found = false;
+				for(int k = 0; k < this.ingredients.size() && !found; k++) {
+					if(this.ingredients.get(k).getName().equals(needed)) {
+						found = true;
+					}
+				}
+				if(!found) {
+					allMatch = false;
 				}
 			}
+			if(allMatch) {
+				return candidate;
+			}
 		}
-		
+
 		return null;
 	}
 	
@@ -101,11 +121,15 @@ public class Cauldron {
 	
 	//don't give this option to the player if there are no cauldrons to be blessed
 	public void blessCauldron(Player player) {
-		if(player.getCrystals() == 1000) {
+		if(player.getCrystals() >= 1000) {
+			player.setCrystals(player.getCrystals() - 1000);
+			cauldronFlush();
 			setUsable(true);
-			System.out.println("Cauldron Blessed!");
+			System.out.println("Your cauldron has been blessed and is usable again! 1000 crystals spent. "
+					+ "You now have " + player.getCrystals() + " crystals.");
 		}else {
-			System.out.println("You do not have enough crystals.");
+			System.out.println("You don't have enough crystals to bless your cauldron "
+					+ "(it costs 1000, you have " + player.getCrystals() + ").");
 		}
 	}
 }

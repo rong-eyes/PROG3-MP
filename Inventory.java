@@ -6,19 +6,19 @@ public class Inventory {
 	private ArrayList<Base> bases;
 	private ArrayList<Cauldron> cauldrons;
 	private int usableCauldrons = 0;
-	
+
 	public Inventory() {
 		ingredients = new ArrayList<>();
 		bases = new ArrayList<>();
 		cauldrons = new ArrayList<>();
 	}
-	
+
 	public Inventory(ArrayList<Ingredient> ingredients, ArrayList<Base> bases, ArrayList<Cauldron> cauldrons) {
 		this.ingredients = ingredients;
 		this.bases = bases;
 		this.cauldrons = cauldrons;
 		for(int i = 0; i < cauldrons.size(); i++) {
-			if(!cauldrons.get(i).isUsable())
+			if(cauldrons.get(i).isUsable())
 				usableCauldrons++;
 		}
 	}
@@ -27,7 +27,7 @@ public class Inventory {
 		return ingredients;
 	}
 
-	public void setIngredients(ArrayList<Ingredient> ingredients) { 
+	public void setIngredients(ArrayList<Ingredient> ingredients) {
 		this.ingredients = ingredients;
 	}
 
@@ -38,7 +38,7 @@ public class Inventory {
 	public void setBases(ArrayList<Base> bases) {
 		this.bases = bases;
 	}
-	
+
 	public ArrayList<Cauldron> getCauldrons() {
 		return cauldrons;
 	}
@@ -46,7 +46,7 @@ public class Inventory {
 	public void setCauldrons(ArrayList<Cauldron> cauldrons) {
 		this.cauldrons = cauldrons;
 	}
-	
+
 	public int getUsableCauldrons() {
 		return usableCauldrons;
 	}
@@ -55,106 +55,118 @@ public class Inventory {
 		this.usableCauldrons = usableCauldrons;
 	}
 
-	public int isInInventory(String ingredient, ArrayList<? extends InventoryItem> items) { //returns index
+	public int isInInventory(String name, ArrayList<?> items) { //returns index
 		for(int i = 0; i < items.size(); i++) {
-			if(ingredient.equals(items.get(i).getName()) && items.get(i).getQuantity() > 0)
+			String itemName = null;
+			int quantity = 0;
+			if(items.get(i) instanceof Ingredient ing) {
+				itemName = ing.getName();
+				quantity = ing.getQuantity();
+			} else if(items.get(i) instanceof Base base) {
+				itemName = base.getName();
+				quantity = base.getQuantity();
+			}
+			if(itemName != null && name.equals(itemName) && quantity > 0)
 				return i;
 		}
-		
+
 		return -1;
 	}
-	
-	//the ff. functions are not strings because ingredient and base are a subclass of Inventory Item
-	
+
+	private int indexByName(String name, ArrayList<?> items) {
+		for(int i = 0; i < items.size(); i++) {
+			String itemName = null;
+			if(items.get(i) instanceof Ingredient ing) {
+				itemName = ing.getName();
+			} else if(items.get(i) instanceof Base base) {
+				itemName = base.getName();
+			}
+			if(itemName != null && name.equals(itemName))
+				return i;
+		}
+
+		return -1;
+	}
+
 	public void addInventory(Ingredient ingredient, int amount) { //for selling
-		int index = this.isInInventory(ingredient.getName(), this.ingredients);
+		int index = this.indexByName(ingredient.getName(), this.ingredients);
 		if(index != -1)
 			this.ingredients.get(index).addQuantity(amount);
 		else {
-			ingredient.setQuantity(amount); 
+			ingredient.setQuantity(amount);
 			this.ingredients.add(ingredient);
 		}
 	}
-	
+
 	public void addInventory(Base base, int amount) { //method overload
-		int index = this.isInInventory(base.getName(), this.bases);
+		int index = this.indexByName(base.getName(), this.bases);
 		if(index != -1)
 			this.bases.get(index).addQuantity(amount);
 		else {
-			base.setQuantity(amount); 
+			base.setQuantity(amount);
 			this.bases.add(base);
 		}
 	}
-	
+
 	public void removeInventory(Ingredient ingredient, int amount) {
-		for(int i = 0; i < this.ingredients.size(); i++) {
-			if(this.ingredients.get(i).getName().equals(ingredient.getName())) {
-				this.ingredients.get(i).deductQuantity(amount);
-				if(this.ingredients.get(i).getQuantity() == 0)
-					ingredients.remove(i);	
-			}
-		}
+		int index = this.indexByName(ingredient.getName(), this.ingredients);
+		if(index != -1)
+			this.ingredients.get(index).deductQuantity(amount);
 	}
-	
+
 	public void removeInventory(Base base, int amount) { //method overload
-		for(int i = 0; i < this.bases.size(); i++) {
-			if(this.bases.get(i).getName().equals(base.getName())) {
-				this.bases.get(i).deductQuantity(base.getQuantity());
-				if(this.bases.get(i).getQuantity() == 0)
-					bases.remove(i);
-			}
-		}
+		int index = this.indexByName(base.getName(), this.bases);
+		if(index != -1)
+			this.bases.get(index).deductQuantity(amount);
 	}
-	
+
 	public void addCauldron() {
 		Cauldron cauldron = new Cauldron();
 		cauldrons.add(cauldron);
 	}
-	
+
 	public void displayInventory() {
-		InventoryItem tmp;
 		int i;
 		int usable = 0;
-		
+
 		for(i = 0; i < ingredients.size(); i++) {
-			tmp = ingredients.get(i);
+			Ingredient tmp = ingredients.get(i);
 			System.out.println(tmp.getName() + " = " + tmp.getQuantity());
 		}
-		
+
 		System.out.print("\n");
-		
+
 		for(i = 0; i < bases.size(); i++) {
-			tmp = bases.get(i);
+			Base tmp = bases.get(i);
 			System.out.println(tmp.getName() + " = " + tmp.getQuantity());
 		}
-		
+
 		System.out.print("\n");
-		
+
 		for(i = 0; i < cauldrons.size(); i++) {
 			if(cauldrons.get(i).isUsable())
 				usable++;
 		}
-		
+
 		System.out.println("Total Cauldrons: " + cauldrons.size());
 		System.out.println("Usable Cauldrons: " + usable);
+		System.out.println("Unusable Cauldrons: " + (cauldrons.size() - usable));
 	}
-	
+
 	public void displaySellables() {
-		InventoryItem tmp;
 		int i;
-		
+
 		for(i = 0; i < ingredients.size(); i++) {
-			tmp = ingredients.get(i);
+			Ingredient tmp = ingredients.get(i);
 			System.out.println(tmp.getName() + " = " + tmp.getQuantity());
 		}
-		
+
 		System.out.print("\n");
-		
+
 		for(i = 0; i < bases.size(); i++) {
-			tmp = bases.get(i);
+			Base tmp = bases.get(i);
 			System.out.println(tmp.getName() + " = " + tmp.getQuantity());
 		}
-		
 		System.out.print("\n");
 	}
 }

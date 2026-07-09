@@ -13,10 +13,10 @@ public class Market {
 	private static final int REFRESH_THRESHOLD = 3;
 	private static final int NO_INPUT = Integer.MIN_VALUE;
 
-	private String[] items = {"STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO", "PINEAPPLE", "KIWI", "BLUEBERRY", "COCONUT",
+	private static final String[] items = {"STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO", "PINEAPPLE", "KIWI", "BLUEBERRY", "COCONUT",
 	                          "SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE", "CAULDRON"};
-	private int[] buyPrices = {125, 80, 50, 75, 90, 240, 200, 120, 180, 50, 80, 250, 60, 150, 3000};
-	private int[] sellPrices = {25, 40, 25, 50, 30, 120, 80, 20, 90, 10, 20, 50, 15, 25, 0};
+	private static final int[] buyPrices = {125, 80, 50, 75, 90, 240, 200, 120, 180, 50, 80, 250, 60, 150, 3000};
+	private static final int[] sellPrices = {25, 40, 25, 50, 30, 120, 80, 20, 90, 10, 20, 50, 15, 25, 0};
 	private Random randomizer;
 	private int[][] itemSlots;
 	private int maxQty;
@@ -35,16 +35,16 @@ public class Market {
 		for (int i = 0; i < NUM_SLOTS; i++) {
 			int pick;
 			if (cauldronPlaced)
-				pick = randomizer.nextInt(CAULDRON_INDEX);      
+				pick = randomizer.nextInt(CAULDRON_INDEX);       // 0..13, cauldron excluded
 			else
-				pick = randomizer.nextInt(CAULDRON_INDEX + 1);   
+				pick = randomizer.nextInt(CAULDRON_INDEX + 1);   // 0..14
 
 			itemSlots[0][i] = pick;
 			if (pick == CAULDRON_INDEX) {
-				itemSlots[1][i] = 1;                         
+				itemSlots[1][i] = 1;                             // cauldron quantity is exactly 1
 				cauldronPlaced = true;
 			} else {
-				itemSlots[1][i] = randomizer.nextInt(maxQty) + 1; 
+				itemSlots[1][i] = randomizer.nextInt(maxQty) + 1; // 1..maxQty (never 0)
 			}
 		}
 	}
@@ -58,7 +58,7 @@ public class Market {
 			initializeItems();
 			System.out.println("The market has restocked with fresh items!");
 		}
-		brewsSinceVisit = 0; 
+		brewsSinceVisit = 0; // the counter is "brews since last visit", so reset on every visit
 
 		int opt = 0;
 		while (opt != 3) {
@@ -169,9 +169,9 @@ public class Market {
 		}
 
 		if (type <= LAST_FRUIT_INDEX) {
-			player.getInventory().addInventory(new Ingredient(name, qty), qty);
+			player.getInventory().addInventory(new InventoryItem(InventoryItem.TYPE_INGREDIENT, name, sellPrices[type], qty), qty);
 		} else {
-			player.getInventory().addInventory(new Base(name, qty), qty);
+			player.getInventory().addInventory(new InventoryItem(InventoryItem.TYPE_BASE, name, sellPrices[type], qty), qty);
 		}
 		player.setCrystals(player.getCrystals() - cost);
 		itemSlots[0][slotIndex] = EMPTY_SLOT; // the slot goes blank after a purchase
@@ -181,12 +181,12 @@ public class Market {
 
 	private void sellItems(Player player, Scanner s) {
 		Inventory inv = player.getInventory();
-		ArrayList<Object> sellables = new ArrayList<>();
-		for (Ingredient ing : inv.getIngredients()) {
+		ArrayList<InventoryItem> sellables = new ArrayList<>();
+		for (InventoryItem ing : inv.getIngredients()) {
 			if (ing.getQuantity() > 0)
 				sellables.add(ing);
 		}
-		for (Base b : inv.getBases()) {
+		for (InventoryItem b : inv.getBases()) {
 			if (b.getQuantity() > 0)
 				sellables.add(b);
 		}
@@ -198,10 +198,8 @@ public class Market {
 
 		System.out.println("------------- YOUR SELLABLE ITEMS -------------");
 		for (int i = 0; i < sellables.size(); i++) {
-			String nm = nameOf(sellables.get(i));
-			int qty = quantityOf(sellables.get(i));
-			int price = sellPrices[catalogIndexOf(nm)];
-			System.out.println((i + 1) + ". " + nm + " x" + qty + "   (Sell: " + price + " crystals each)");
+			InventoryItem it = sellables.get(i);
+			System.out.println((i + 1) + ". " + it.getName() + " x" + it.getQuantity() + "   (Sell: " + it.getPrice() + " crystals each)");
 		}
 		System.out.println("-----------------------------------------------");
 		System.out.println("Enter item number(s) to sell, comma-separated (e.g. 1,2), or 0 to go back:");
@@ -225,15 +223,10 @@ public class Market {
 		}
 	}
 
-	private void sellOneItem(Object item, Player player, Scanner s) {
-		String name = nameOf(item);
-		int owned = quantityOf(item);
-		int catalog = catalogIndexOf(name);
-		if (catalog < 0) {
-			System.out.println(name + " cannot be sold here.");
-			return;
-		}
-		int price = sellPrices[catalog];
+	private void sellOneItem(InventoryItem item, Player player, Scanner s) {
+		String name = item.getName();
+		int owned = item.getQuantity();
+		int price = item.getPrice();
 
 		if (owned <= 0) {
 			System.out.println("You no longer have any " + name + " to sell.");
@@ -257,38 +250,23 @@ public class Market {
 		}
 
 		int gain = qty * price;
-		if (item instanceof Ingredient) {
-			player.getInventory().removeInventory(new Ingredient(name, qty), qty);
-		} else {
-			player.getInventory().removeInventory(new Base(name, qty), qty);
-		}
+		player.getInventory().removeInventory(item, qty);
 		player.setCrystals(player.getCrystals() + gain);
 		System.out.println("Sold " + qty + " " + name + " for " + gain + " crystals. You now have "
 				+ player.getCrystals() + " crystals.");
 	}
 
-	private String nameOf(Object item) {
-		if (item instanceof Ingredient ing)
-			return ing.getName();
-		if (item instanceof Base b)
-			return b.getName();
-		return "";
-	}
-
-	private int quantityOf(Object item) {
-		if (item instanceof Ingredient ing)
-			return ing.getQuantity();
-		if (item instanceof Base b)
-			return b.getQuantity();
-		return 0;
-	}
-
-	private int catalogIndexOf(String name) {
+	private static int catalogIndexOf(String name) {
 		for (int i = 0; i < items.length; i++) {
 			if (items[i].equals(name))
 				return i;
 		}
 		return -1;
+	}
+
+	public static int sellPriceOf(String name) {
+		int index = catalogIndexOf(name);
+		return (index < 0) ? 0 : sellPrices[index];
 	}
 
 	private ArrayList<Integer> parseNumbers(String line) {

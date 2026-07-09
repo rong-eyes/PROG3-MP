@@ -1,20 +1,56 @@
 package MCO1;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Player {
 	private final String playerName;
 	private Inventory inventory;
 	private int crystals;
 	private Spellbook spellbook;
-	
-	public Player(String name) { //for new game instantiation
+	private boolean loginBonusClaimed;
+
+	public Player(String name, ArrayList<Recipe> allRecipes) {
 		playerName = name;
-		inventory = new Inventory();
+		crystals = 5000;
+
+		ArrayList<InventoryItem> fruits = new ArrayList<>();
+		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "STRAWBERRY", 3));
+		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "ORANGE", 2));
+		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "LEMON", 2));
+		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "BANANA", 3));
+		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "MANGO", 1));
+		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "PINEAPPLE", 0));
+		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "KIWI", 1));
+		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "BLUEBERRY", 3));
+		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "COCONUT", 0));
+
+		ArrayList<InventoryItem> bases = new ArrayList<>();
+		bases.add(new InventoryItem(InventoryItem.TYPE_BASE, "SYRUP BASE", 3));
+		bases.add(new InventoryItem(InventoryItem.TYPE_BASE, "BUBBLE BASE", 3));
+		bases.add(new InventoryItem(InventoryItem.TYPE_BASE, "PERFUME BASE", 1));
+		bases.add(new InventoryItem(InventoryItem.TYPE_BASE, "MILK BASE", 2));
+		bases.add(new InventoryItem(InventoryItem.TYPE_BASE, "LOTION BASE", 2));
+
+		ArrayList<Cauldron> cauldrons = new ArrayList<>();
+		for (int i = 0; i < 3; i++) {
+			cauldrons.add(new Cauldron()); // a fresh cauldron is usable
+		}
+
+		inventory = new Inventory(fruits, bases, cauldrons);
+		inventory.setUsableCauldrons(3);
+
 		spellbook = new Spellbook();
+		int[] defaultIds = {1, 2, 16, 17, 36, 37, 55, 56};
+		for (int id : defaultIds) {
+			Recipe recipe = RecipeLoader.findRecipeById(allRecipes, id);
+			if (recipe != null) {
+				spellbook.addRecipe(recipe);
+			}
+		}
 	}
-	
-	public Player(String name, Inventory inventory, int crystals, Spellbook sb) { //for file loading
+
+	public Player(String name, Inventory inventory, int crystals, Spellbook sb) {
 		playerName = name;
 		this.inventory = inventory;
 		this.crystals = crystals;
@@ -48,258 +84,301 @@ public class Player {
 	public String getPlayerName() {
 		return playerName;
 	}
-	
-	public void BrewConcoction(boolean isCreative, Cauldron cauldron, Scanner s, ArrayList<Recipe> Recipes) { //this is what will be called in the menu option
-		//make sure to have a check beforehand if it is usable
-		//boolean isCreative decides what mode; false = recipe mode, true = creative
-		int opt = 0;
-		int tmp;
-		
-		if(isCreative) {
-			boolean isCancel = false;
-			char var = ' ';
-			boolean selectedBase = false;
 
-			while(!isCancel && !selectedBase) {
-				//Base Selection
-				System.out.println("Choose a Base: 1. SYRUP  2. BUBBLE  3. PERFUME  4. MILK  5. LOTION");
-				while(opt < 1 || opt >= 6) {
-					try {
-						opt = s.nextInt();
-						switch(opt) {
-						case 1:
-							tmp = inventory.isInInventory("Syrup Base", inventory.getBases()); //returns index of where it is in the ArrayList
-							if(tmp > -1)
-								cauldron.addBase(inventory.getBases().get(tmp).getName(), inventory);
-							selectedBase = true;
-							break;
-						case 2:
-							tmp = inventory.isInInventory("Bubble Base", inventory.getBases()); //returns index of where it is in the ArrayList
-							if(tmp > -1)
-								cauldron.addBase(inventory.getBases().get(tmp).getName(), inventory);
-							selectedBase = true;
-							break;
-						case 3:
-							tmp = inventory.isInInventory("Perfume Base", inventory.getBases()); //returns index of where it is in the ArrayList
-							if(tmp > -1)
-								cauldron.addBase(inventory.getBases().get(tmp).getName(), inventory);
-							selectedBase = true;
-							break;
-						case 4:
-							tmp = inventory.isInInventory("Milk Base", inventory.getBases()); //returns index of where it is in the ArrayList
-							if(tmp > -1)
-								cauldron.addBase(inventory.getBases().get(tmp).getName(), inventory);
-							selectedBase = true;
-							break;
-						case 5:
-							tmp = inventory.isInInventory("Lotion Base", inventory.getBases()); //returns index of where it is in the ArrayList
-							if(tmp > -1)
-								cauldron.addBase(inventory.getBases().get(tmp).getName(), inventory);
-							selectedBase = true;
-							break;
-						default:
-							System.out.println("Invalid Input. Try Again.");
-						}
-					}catch (Exception e){
-						System.out.println("Invalid Input.");
-					}
-				}
-				
-				while(var != 'Y' && var != 'N') {
-					System.out.println("Cancel Brew (Y/N)?: ");
-					var = s.next().charAt(0);
-					if(var == 'Y')
-						isCancel = true;
-					else if (var != 'N' && var != 'Y')
-						System.out.println("Invalid Input");
-						
-				}
-			}
-			
-			if(isCancel) {
-				inventory.addInventory(cauldron.getConcoctionBase(), 1);
-			}
-			
-			char again = 'Y';
-			boolean done = false;
-			while(!isCancel && again != 'N' && !done) {
-				//Ingredients Selection
-				
-				//BIG BUG DISPLAYS DOES NOT HAVE INGREDIENT EVERY TIME DESPITE HAVING STOCK 
-				
-				System.out.println("Choose an Ingredient: (No Duplicates!)");
-				System.out.println("1. STRAWBERRY  2. ORANGE  3. LEMON  4. BANANA  5. MANGO\n"
-						         + "6. PINEAPPLE  7. KIWI  8. BLUEBERRY  9. COCONUT");
-				boolean added = false;
-				opt = 0;
-				while((opt < 1 || opt >= 10) && !added && cauldron.getIngredients().size() != 3) {
-					opt = 0;
-					try {
-						opt = s.nextInt();
-						switch(opt) {
-						case 1:
-							tmp = inventory.isInInventory("Strawberry", inventory.getIngredients()); //returns index of where it is in the ArrayList
-							if(tmp > -1) {
-								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								added = true;
-							} else 
-								System.out.println("You don't have this ingredient.");
-							break;
-						case 2:
-							tmp = inventory.isInInventory("Orange", inventory.getIngredients()); //returns index of where it is in the ArrayList
-							if(tmp > -1) {
-								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								added = true;
-							} else 
-								System.out.println("You don't have this ingredient.");
-							break;
-						case 3:
-							tmp = inventory.isInInventory("Lemon", inventory.getIngredients()); //returns index of where it is in the ArrayList
-							if(tmp > -1) {
-								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								added = true;
-							} else 
-								System.out.println("You don't have this ingredient.");
-							break;
-						case 4:
-							tmp = inventory.isInInventory("Banana", inventory.getIngredients()); //returns index of where it is in the ArrayList
-							if(tmp > -1) {
-								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								added = true;
-							} else 
-								System.out.println("You don't have this ingredient.");
-							break;
-						case 5:
-							tmp = inventory.isInInventory("Mango", inventory.getIngredients()); //returns index of where it is in the ArrayList
-							if(tmp > -1) {
-								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								added = true;
-							} else 
-								System.out.println("You don't have this ingredient.");
-							break;
-						case 6:
-							tmp = inventory.isInInventory("Pineapple", inventory.getIngredients()); //returns index of where it is in the ArrayList
-							if(tmp > -1) {
-								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								added = true;
-							} else 
-								System.out.println("You don't have this ingredient.");
-							break;
-						case 7:
-							tmp = inventory.isInInventory("Kiwi", inventory.getIngredients()); //returns index of where it is in the ArrayList
-							if(tmp > -1) {
-								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								added = true;
-							} else 
-								System.out.println("You don't have this ingredient.");
-							break;
-						case 8:
-							tmp = inventory.isInInventory("Blueberry", inventory.getIngredients()); //returns index of where it is in the ArrayList
-							if(tmp > -1) {
-								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								added = true;
-							} else 
-								System.out.println("You don't have this ingredient.");
-							break;
-						case 9:
-							tmp = inventory.isInInventory("Coconut", inventory.getIngredients()); //returns index of where it is in the ArrayList
-							if(tmp > -1) {
-								cauldron.addIngredients(inventory.getIngredients().get(tmp), inventory);
-								added = true;
-							} else 
-								System.out.println("You don't have this ingredient.");
-							break;
-						default:
-							System.out.println("Invalid Input. Try Again.");
-							break;
-						}
-					}catch (Exception e){
-						System.out.println("Invalid Input.");
-					}
-					
-					if(cauldron.getIngredients().size() == 3) {
-						System.out.println("Cauldron Full!");
-						again = 'N';
-					}else if (added) {
-						System.out.println("Continue Adding Ingredients? (Y/N)");
-		                again = s.next().charAt(0);
-					}
-				}
-				if (again == 'N' || !added) {
-					var = ' ';
-					while(var != 'Y' && var != 'N') {
-						System.out.println("Cancel Brew (Y/N)?: ");
-						var = s.next().charAt(0);
-						if(var == 'Y') {
-							isCancel = true;	
-							done = true;
-						}
-						else if (var != 'N' && var != 'Y'){
-							System.out.println("Invalid Input");
-						}
-					}
-				}
-			}
-			
-			if(isCancel) {
-				for(int i = 0; i < cauldron.getIngredients().size(); i++) {
-					inventory.addInventory(cauldron.getIngredients().get(i), 1);
-				}
-			}
-			
-			if(!isCancel) {
-			System.out.println("Confirm Brew (Y/N)?: ");
-			var = ' ';
-				while(var != 'Y' && var != 'N') {
-					var = s.next().charAt(0);
-					if(var == 'N') {
-						inventory.addInventory(cauldron.getConcoctionBase(), 1);
-						for(int i = 0; i < cauldron.getIngredients().size(); i++) {
-							inventory.addInventory(cauldron.getIngredients().get(i), 1);
-						}
-					} else if(var == 'Y') {
-						//ADD A CODE THAT CHECKS FOR FORMULA VALIDITY
-						
-						if(cauldron.validBrew(Recipes) != null) {
-							Recipe temp = cauldron.validBrew(Recipes);
-							if(spellbook.getRecipe(temp.getConcoctionID()) == null) {
-								spellbook.addRecipe(temp);
-								System.out.println(temp.getName() + " Unlocked!");
-							}
-							setCrystals(getCrystals() + temp.getPrice());
-							System.out.println(temp.getName() + "successfully brewed! + " + temp.getPrice() + "crystals");
-						}else {
-							System.out.println("Oh no! Alchemy failed!");
-							cauldron.setUsable(false);
-						}
-						cauldron.cauldronFlush();
-					}
-				}
-			} 
-			
-			
+	public void BrewConcoction(boolean isCreative, Cauldron cauldron, Scanner s, ArrayList<Recipe> Recipes, Market market) {
+		if (isCreative) {
+			brewCreative(cauldron, s, Recipes, market);
+		} else {
+			brewRecipe(cauldron, s, market);
 		}
-			else { //RECIPE MODE 
-			Recipe temp;
-			spellbook.printRecipes();
-			System.out.println("Enter the Recipe ID to Brew:");
-			while(spellbook.getRecipe(opt) == null) {
-				opt = s.nextInt();
-				if(spellbook.getRecipe(opt) != null) {
-					temp = spellbook.getRecipe(opt);
-					cauldron.setConcoctionBase(temp.getConcoctionBase());
-					cauldron.setIngredients(temp.getIngredients());
-					inventory.removeInventory(temp.getConcoctionBase(), 1);
-					for(int i = 0; i < temp.getIngredients().size(); i++) {
-						inventory.removeInventory(temp.getIngredients().get(i), 1);
-					}
-					
-					setCrystals(getCrystals() + temp.getPrice());
-					System.out.println(temp.getName() + "successfully brewed! + " + temp.getPrice() + "crystals");
-				}else {
-					System.out.println("Invalid Input!");
+	}
+
+	private void brewRecipe(Cauldron cauldron, Scanner s, Market market) {
+		spellbook.printRecipes();
+		if (spellbook.getUnlockedRecipes().isEmpty()) {
+			System.out.println("Your spellbook has no recipes to brew yet.");
+			return;
+		}
+
+		Recipe chosen = null;
+		System.out.println("Enter the concoction ID to brew, or 0 to cancel:");
+		while (chosen == null) {
+			String line = readLine(s);
+			if (line == null) {
+				System.out.println("No input received. Returning to the main menu.");
+				return;
+			}
+			int id;
+			try {
+				id = Integer.parseInt(line);
+			} catch (NumberFormatException e) {
+				System.out.println("Invalid input. Enter a numeric concoction ID, or 0 to cancel:");
+				continue;
+			}
+			if (id == 0) {
+				System.out.println("Brew cancelled. Returning to the main menu.");
+				return;
+			}
+			chosen = spellbook.getRecipe(id);
+			if (chosen == null) {
+				System.out.println("That concoction is not in your spellbook. Enter a valid ID, or 0 to cancel:");
+			}
+		}
+
+		if (!hasSufficientIngredients(chosen)) {
+			System.out.println("You do not have enough ingredients to brew this concoction.");
+			System.out.println("Brew cancelled. Returning to the main menu.");
+			return;
+		}
+
+		System.out.println("Brew " + chosen.getName() + " for " + chosen.getPrice() + " crystals? (Y/N):");
+		Boolean confirm = readYesNo(s);
+		if (confirm == null) {
+			System.out.println("No input received. Returning to the main menu.");
+			return;
+		}
+		if (!confirm) {
+			System.out.println("Brew cancelled. Returning to the main menu.");
+			return;
+		}
+
+		inventory.removeInventory(chosen.getConcoctionBase(), 1);
+		for (int i = 0; i < chosen.getIngredients().size(); i++) {
+			inventory.removeInventory(chosen.getIngredients().get(i), 1);
+		}
+
+		setCrystals(getCrystals() + chosen.getPrice());
+		market.recordBrew();
+		System.out.println("Successfully brewed " + chosen.getName()
+				+ "! It was packed into bottles and sold for " + chosen.getPrice()
+				+ " crystals. You now have " + getCrystals() + " crystals.");
+	}
+
+	private void brewCreative(Cauldron cauldron, Scanner s, ArrayList<Recipe> Recipes, Market market) {
+		String[] baseNames = {"SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE"};
+		String[] fruitNames = {"STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO",
+				"PINEAPPLE", "KIWI", "BLUEBERRY", "COCONUT"};
+
+		// Base selection (must own the base; 0 cancels).
+		String chosenBase = null;
+		while (chosenBase == null) {
+			System.out.println("Choose a base to brew with, or 0 to cancel:");
+			System.out.println("1. SYRUP BASE  2. BUBBLE BASE  3. PERFUME BASE  4. MILK BASE  5. LOTION BASE");
+			String line = readLine(s);
+			if (line == null) {
+				System.out.println("No input received. Returning to the main menu.");
+				return;
+			}
+			int opt;
+			try {
+				opt = Integer.parseInt(line);
+			} catch (NumberFormatException e) {
+				System.out.println("Invalid input. Enter 1-5, or 0 to cancel.");
+				continue;
+			}
+			if (opt == 0) {
+				System.out.println("Brew cancelled. Returning to the main menu.");
+				return;
+			}
+			if (opt < 1 || opt > baseNames.length) {
+				System.out.println("Invalid choice. Enter 1-5, or 0 to cancel.");
+				continue;
+			}
+			String candidate = baseNames[opt - 1];
+			if (inventory.isInInventory(candidate, inventory.getBases()) != -1) {
+				chosenBase = candidate;
+				System.out.println(chosenBase + " selected as your concoction base.");
+			} else {
+				System.out.println("You don't own any " + candidate + ". Choose a base you own.");
+			}
+		}
+
+		ArrayList<InventoryItem> chosenFruits = new ArrayList<>();
+		boolean doneAdding = false;
+		while (!doneAdding) {
+			System.out.println("Fruits in the cauldron: " + fruitListString(chosenFruits)
+					+ " (" + chosenFruits.size() + "/3)");
+			System.out.println("Choose a fruit to add, or 0 to cancel the brew:");
+			System.out.println("1. STRAWBERRY  2. ORANGE  3. LEMON  4. BANANA  5. MANGO");
+			System.out.println("6. PINEAPPLE  7. KIWI  8. BLUEBERRY  9. COCONUT");
+			String line = readLine(s);
+			if (line == null) {
+				System.out.println("No input received. Returning to the main menu.");
+				return;
+			}
+			int opt;
+			try {
+				opt = Integer.parseInt(line);
+			} catch (NumberFormatException e) {
+				System.out.println("Invalid input. Enter 1-9, or 0 to cancel.");
+				continue;
+			}
+			if (opt == 0) {
+				System.out.println("Brew cancelled. Returning to the main menu.");
+				return;
+			}
+			if (opt < 1 || opt > fruitNames.length) {
+				System.out.println("Invalid choice. Enter 1-9, or 0 to cancel.");
+				continue;
+			}
+			String fruit = fruitNames[opt - 1];
+			if (containsName(chosenFruits, fruit)) {
+				System.out.println(fruit + " is already in the cauldron; no duplicates allowed.");
+				continue;
+			}
+			if (inventory.isInInventory(fruit, inventory.getIngredients()) == -1) {
+				System.out.println("You don't own any " + fruit + ". Choose a fruit you own.");
+				continue;
+			}
+			chosenFruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, fruit, 1));
+			System.out.println(fruit + " added to the cauldron.");
+
+			if (chosenFruits.size() == 3) {
+				System.out.println("The cauldron is full (3 fruits).");
+				doneAdding = true;
+			} else {
+				System.out.println("Add another fruit? (Y/N):");
+				Boolean more = readYesNo(s);
+				if (more == null) {
+					System.out.println("No input received. Returning to the main menu.");
+					return;
+				}
+				if (!more) {
+					doneAdding = true;
 				}
 			}
+		}
+
+		System.out.println("Brew a concoction with " + chosenBase + " and "
+				+ fruitListString(chosenFruits) + "? (Y/N):");
+		Boolean confirm = readYesNo(s);
+		if (confirm == null) {
+			System.out.println("No input received. Returning to the main menu.");
+			return;
+		}
+		if (!confirm) {
+			System.out.println("Brew cancelled. Returning to the main menu.");
+			return;
+		}
+
+		inventory.removeInventory(new InventoryItem(InventoryItem.TYPE_BASE, chosenBase, 1), 1);
+		for (int i = 0; i < chosenFruits.size(); i++) {
+			inventory.removeInventory(new InventoryItem(InventoryItem.TYPE_INGREDIENT, chosenFruits.get(i).getName(), 1), 1);
+		}
+		cauldron.setConcoctionBase(new InventoryItem(InventoryItem.TYPE_BASE, chosenBase, 1));
+		cauldron.setIngredients(chosenFruits);
+
+		Recipe result = cauldron.validBrew(Recipes);
+		if (result != null) {
+			market.recordBrew();
+			setCrystals(getCrystals() + result.getPrice());
+			boolean newlyDiscovered = spellbook.getRecipe(result.getConcoctionID()) == null;
+			if (newlyDiscovered) {
+				spellbook.addRecipe(result);
+			}
+			System.out.println("Success! You brewed " + result.getName()
+					+ ", packed it into bottles, and sold it for " + result.getPrice()
+					+ " crystals. You now have " + getCrystals() + " crystals.");
+			if (newlyDiscovered) {
+				System.out.println(result.getName() + " has been recorded in your spellbook!");
+			} else {
+				System.out.println(result.getName() + " is already in your spellbook.");
+			}
+			cauldron.cauldronFlush();
+		} else {
+			System.out.println("Oh no! The alchemy failed. The cauldron is now full of junk and "
+					+ "unusable until it is blessed.");
+			cauldron.setUsable(false);
+		}
+	}
+
+	public void claimLoginBonus() {
+		if (loginBonusClaimed) {
+			System.out.println("You have already claimed your login bonus this session. "
+					+ "Exit and re-enter the game to claim it again.");
+			return;
+		}
+		String[] fruitNames = {"STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO",
+				"PINEAPPLE", "KIWI", "BLUEBERRY", "COCONUT"};
+		Random rng = new Random();
+		String pick = fruitNames[rng.nextInt(fruitNames.length)];
+		inventory.addInventory(new InventoryItem(InventoryItem.TYPE_INGREDIENT, pick, 1), 1);
+		loginBonusClaimed = true;
+		System.out.println("Login bonus claimed! You received 1 " + pick + ".");
+	}
+
+	private boolean hasSufficientIngredients(Recipe recipe) {
+		if (quantityOwned(recipe.getConcoctionBase().getName(), inventory.getBases()) < 1) {
+			return false;
+		}
+		ArrayList<InventoryItem> needed = recipe.getIngredients();
+		for (int i = 0; i < needed.size(); i++) {
+			String name = needed.get(i).getName();
+			int required = 0;
+			for (int j = 0; j < needed.size(); j++) {
+				if (needed.get(j).getName().equals(name)) {
+					required++;
+				}
+			}
+			if (quantityOwned(name, inventory.getIngredients()) < required) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private int quantityOwned(String name, ArrayList<InventoryItem> items) {
+		for (int i = 0; i < items.size(); i++) {
+			if (items.get(i).getName().equals(name)) {
+				return items.get(i).getQuantity();
+			}
+		}
+		return 0;
+	}
+
+	private boolean containsName(ArrayList<InventoryItem> fruits, String name) {
+		for (int i = 0; i < fruits.size(); i++) {
+			if (fruits.get(i).getName().equals(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private String fruitListString(ArrayList<InventoryItem> fruits) {
+		if (fruits.isEmpty()) {
+			return "(none)";
+		}
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < fruits.size(); i++) {
+			if (i > 0) {
+				sb.append(", ");
+			}
+			sb.append(fruits.get(i).getName());
+		}
+		return sb.toString();
+	}
+
+	private String readLine(Scanner s) {
+		if (!s.hasNextLine()) {
+			return null;
+		}
+		return s.nextLine().trim();
+	}
+
+	private Boolean readYesNo(Scanner s) {
+		while (true) {
+			String line = readLine(s);
+			if (line == null) {
+				return null;
+			}
+			if (line.equalsIgnoreCase("Y")) {
+				return true;
+			}
+			if (line.equalsIgnoreCase("N")) {
+				return false;
+			}
+			System.out.println("Please enter Y or N.");
 		}
 	}
 }

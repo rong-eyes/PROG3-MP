@@ -226,7 +226,7 @@ public class Main {
 				System.out.println("Returning to the main menu.");
 				return;
 			} else if (mode == 1) {
-				player.BrewConcoction(false, firstUsable(cauldrons), sc, allRecipes, market);
+				player.brewConcoction(false, firstUsable(cauldrons), sc, allRecipes, market);
 				return;
 			} else if (mode == 2) {
 				if (usable <= 1) {
@@ -235,7 +235,7 @@ public class Main {
 							+ "Try recipe mode instead.");
 					continue;
 				}
-				player.BrewConcoction(true, firstUsable(cauldrons), sc, allRecipes, market);
+				player.brewConcoction(true, firstUsable(cauldrons), sc, allRecipes, market);
 				return;
 			} else {
 				System.out.println("Invalid choice. Enter 1, 2, or 0.");

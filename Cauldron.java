@@ -7,6 +7,10 @@ public class Cauldron {
 	private ArrayList<InventoryItem> ingredients;
 	private int cauldronNum;
 
+	/**
+	* Creates a cauldron and initializes it to be immediately usable with an empty ingredients list
+	*
+	*/
 	public Cauldron() {
 		isUsable = true;
 		ingredients = new ArrayList<>();
@@ -44,6 +48,16 @@ public class Cauldron {
 		this.cauldronNum = cauldronNum;
 	}
 
+	/**
+	* Adds ingredient/s to the cauldron when brewing
+	* <p>
+	* Takes the desired ingredient from the player's inventory (if any). Doesn't add the ingredient if
+	* the cauldron is full or if theingredient is already in the cauldron.
+	* </p>
+	*
+	* @param ingredient the desired ingredient that the player wants to add to the cauldron
+	* @param inventory the player's inventory
+	*/
 	public void addIngredients(InventoryItem ingredient, Inventory inventory) {
 		if(ingredients.size() == 3) {
 			System.out.println("The cauldron is already full (3 ingredients).");
@@ -68,6 +82,16 @@ public class Cauldron {
 		}
 	}
 
+	/**
+	* Removes ingredient/s to the cauldron when brewing
+	* <p>
+	* Removes an ingredient from the cauldron based on the user-inputted index and adds it back 
+	* to the player's inventory. The program will inform the player if there is nothign to remove.
+	* </p>
+	*
+	* @param index the index of the ingredient to be removed
+	* @param inventory the player's inventory
+	*/
 	public void removeIngredient(int index, Inventory inventory) {
 		if(ingredients.size() == 0) {
 			System.out.println("There is nothing to remove from the cauldron.");
@@ -77,11 +101,30 @@ public class Cauldron {
 		}
 	}
 
+	/**
+	* Adds base to the cauldron when brewing
+	* <p>
+	* Removes an ingredient from the cauldron based on the user-inputted index and adds it back 
+	* to the player's inventory. The program will inform the player if there is nothign to remove.
+	* </p>
+	*
+	* @param index the index of the ingredient to be removed
+	* @param inventory the player's inventory
+	*/
 	public void addBase(String base, Inventory inventory) {
 		this.concoctionBase = new InventoryItem(InventoryItem.TYPE_BASE, base, 1);
 		inventory.removeInventory(this.concoctionBase, 1);
 	}
 
+	/**
+	* Checks if the brew is a valid recipe
+	* <p>
+	* Checks the player's concocted brew and cross-checks with the list of valid recipes if the combination of base and ingredients are valid.
+	* </p>
+	*
+	* @param recipes the list of valid recipes
+	* @return the Recipe(object) of the valid brew, if valid; null otherwise
+	*/
 	public Recipe validBrew(ArrayList<Recipe> recipes) {
 		for(int i = 0; i < recipes.size(); i++) {
 			Recipe candidate = recipes.get(i);
@@ -113,10 +156,22 @@ public class Cauldron {
 		return null;
 	}
 
+	/**
+	* Clears the base and ingredients of the cauldron.
+	*
+	*/
 	public void cauldronFlush() {
 		this.concoctionBase = null;
 		this.ingredients.removeAll(ingredients);
 	}
+	
+	/**
+	* Makes the cauldron usable again.
+	* <p>
+	* A cauldron is made unusable if a brew is invalid. Takes 1000 crystals from the player to make the cauldron usable again. If the player doesn't have enough crystals,
+	* they will be alerted.
+	* </p>
+	*/
 
 	public void blessCauldron(Player player) {
 		if(player.getCrystals() >= 1000) {

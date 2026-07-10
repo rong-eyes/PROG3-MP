@@ -50,6 +50,10 @@ public class SaveManager {
 		}
 	}
 
+	public static boolean saveExists(String name) {
+		return Files.exists(Path.of(name + ".txt"));
+	}
+	
 	public static Player loadGame(String name, ArrayList<Recipe> allRecipes) {
 		Path path = Path.of(name + ".txt");
 		if (!Files.exists(path)) {

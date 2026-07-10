@@ -85,7 +85,7 @@ public class Player {
 		return playerName;
 	}
 
-	public void BrewConcoction(boolean isCreative, Cauldron cauldron, Scanner s, ArrayList<Recipe> Recipes, Market market) {
+	public void brewConcoction(boolean isCreative, Cauldron cauldron, Scanner s, ArrayList<Recipe> Recipes, Market market) {
 		if (isCreative) {
 			brewCreative(cauldron, s, Recipes, market);
 		} else {

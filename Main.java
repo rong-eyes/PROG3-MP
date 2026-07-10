@@ -13,7 +13,7 @@ public class Main {
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		System.out.println("=====================================");
-		System.out.println("        POTION PRODIGY ";
+		System.out.println("        POTION PRODIGY ");
 		System.out.println("=====================================");
 
 		ArrayList<Recipe> allRecipes = RecipeLoader.loadRecipes(COMPENDIUM_PATH);
@@ -49,6 +49,20 @@ public class Main {
 				if (name == null) {
 					return null;
 				}
+				// Warn up front when the name would overwrite an existing save (spec p.1 1.c.i).
+				if (SaveManager.saveExists(name)) {
+					Boolean cont = promptYesNo(sc, "A save file named \"" + name
+							+ ".txt\" already exists. Starting a new game will overwrite it"
+							+ " when you save. Continue as \"" + name + "\"? (Y/N): ");
+					if (cont == null) {
+						return null;
+					}
+					if (!cont) {
+						// Declined: back to the start menu to pick another name or load the save.
+						System.out.println("Returning to the start menu.");
+						continue;
+					}
+				}
 				Player player = new Player(name, allRecipes);
 				System.out.println("Welcome, " + name + "! Your alchemy adventure begins.");
 				return player;
@@ -62,7 +76,7 @@ public class Main {
 					System.out.println("Welcome back, " + player.getPlayerName() + "!");
 					return player;
 				}
-	
+				// Missing/unloadable save: offer a new game so the player is not soft-locked.
 				Boolean startNew = promptYesNo(sc,
 						"Would you like to start a New Game as \"" + name + "\" instead? (Y/N): ");
 				if (startNew == null) {
@@ -73,7 +87,7 @@ public class Main {
 					System.out.println("Welcome, " + name + "! Your alchemy adventure begins.");
 					return newPlayer;
 				}
-
+				// Declined: acknowledge and loop back to show the boot prompt again.
 				System.out.println("Returning to the start menu.");
 			} else {
 				System.out.println("Invalid choice. Please enter 1 or 2.");
@@ -118,7 +132,7 @@ public class Main {
 	}
 
 	private static void runMainMenu(Player player, Scanner sc, ArrayList<Recipe> allRecipes) {
-
+		// One shared market for the whole session; also passed to the brew wiring (Packet D).
 		Market market = new Market();
 		boolean running = true;
 		while (running) {
@@ -166,26 +180,13 @@ public class Main {
 				case 5 -> handleBless(player, sc);
 				case 6 -> player.claimLoginBonus();
 				case 7 -> {
-					saveOnExit(player, sc);
+					SaveManager.saveGame(player);
 					System.out.println("Thanks for playing Potion Prodigy. Goodbye!");
 					running = false;
 				}
 				default -> System.out.println("Invalid choice. Please enter a number from 1 to 7.");
 			}
 		}
-	}
-
-	private static void saveOnExit(Player player, Scanner sc) {
-		if (SaveManager.saveExists(player.getPlayerName())) {
-			Boolean overwrite = promptYesNo(sc,
-					"A save file named \"" + player.getPlayerName()
-					+ ".txt\" already exists. Overwrite it? (Y/N): ");
-			if (overwrite == null || !overwrite) {
-				System.out.println("Your progress was not saved; the existing save file was kept.");
-				return;
-			}
-		}
-		SaveManager.saveGame(player);
 	}
 
 	private static void handleBrew(Player player, Scanner sc, ArrayList<Recipe> allRecipes, Market market) {

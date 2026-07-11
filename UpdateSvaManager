@@ -24,6 +24,12 @@ public class SaveManager {
 	private SaveManager() {
 	}
 
+	/**
+	* This is responsible for creating the file with the progress info of the player profile
+	* 
+	* @param player The player profile in which the info will be extracted from
+	* @return true if the player progress has been successfully saved onto the file; false otherwise
+	*/
 	public static boolean saveGame(Player player) {
 		String fileName = player.getPlayerName() + ".txt";
 		Inventory inv = player.getInventory();
@@ -58,10 +64,23 @@ public class SaveManager {
 		}
 	}
 
+	/**
+	* Responsible for checking if the save file exists
+	* 
+	* @param name the player/save file name (without the .txt extension)
+	* @return true if the saved player profile exists; false otherwise
+	*/
 	public static boolean saveExists(String name) {
 		return Files.exists(Path.of(name + ".txt"));
 	}
 
+	/**
+	* Responsible for loading the existing player profile
+	*
+	* @param name the player/save file name (without the.txt extension)
+	* @param allRecipes the list of all valid Recipes (in this context, it is used to load the player's unlocked recipes)
+	* @return the Player object with all of the progress information stored in it; null if the player profile doesn't exist.
+	*/
 	public static Player loadGame(String name, ArrayList<Recipe> allRecipes) {
 		Path path = Path.of(name + ".txt");
 		if (!Files.exists(path)) {
@@ -148,7 +167,6 @@ public class SaveManager {
 		return 0;
 	}
 
-
 	private static int countUsable(ArrayList<Cauldron> cauldrons) {
 		int usable = 0;
 		for (Cauldron c : cauldrons) {
@@ -159,7 +177,12 @@ public class SaveManager {
 		return usable;
 	}
 
-
+	/**
+	* Converts the IDs of the unlocked recipes from the spell book into a string with comma-separated values.
+	*
+	* @param spellbook the spellbook containing the unlocked recipe progress
+	* @return the string with the list of the recipe IDs
+	*/
 	private static String spellbookIds(Spellbook spellbook) {
 		ArrayList<Recipe> recipes = spellbook.getUnlockedRecipes();
 		StringBuilder ids = new StringBuilder();
@@ -172,6 +195,7 @@ public class SaveManager {
 		return ids.toString();
 	}
 
+	
 	private static String valueAfterEquals(String line) {
 		int idx = line.indexOf('=');
 		return line.substring(idx + 1).trim();

@@ -15,6 +15,12 @@ public class Player {
 	private Spellbook spellbook;
 	private boolean loginBonusClaimed;
 
+	/**
+	* Constructs a player with the starter inventory, crystals, and recipes. This constructor is for new games.
+	*
+	* @param name player name
+	* @param allRecipes the list of valid recipes
+	*/
 	public Player(String name, ArrayList<Recipe> allRecipes) {
 		playerName = name;
 		crystals = 5000;
@@ -55,6 +61,14 @@ public class Player {
 		}
 	}
 
+	/**
+	* Constructs a player and loads the progress of a previous save onto the player. This is for load game.
+	*
+	* @param name player name
+	* @param inventory the inventory with the items loaded onto from the saved file
+	* @param crystals the amount of crystals the save file had
+	* @param sb spellbook with the unlocked recipes of the save file loaded onto
+	*/
 	public Player(String name, Inventory inventory, int crystals, Spellbook sb) {
 		playerName = name;
 		this.inventory = inventory;
@@ -90,6 +104,15 @@ public class Player {
 		return playerName;
 	}
 
+	/**
+	* The dispatcher for method for brewing concoctions. Tells the program to execute the correct brewing mode based on a boolean value.
+	*
+	* @param isCreative boolean value that indicates the brew mode; true for creative mode and false for recipe mode
+	* @param cauldron the cauldron that the brew is being done on
+	* @param s Scanner to be passed onto the brew methods for player interactivity
+	* @param Recipes the list of valid Recipes
+	* @param market the market, mostly here for the purpose of tracking successful brews for the market refresh
+	*/
 	public void BrewConcoction(boolean isCreative, Cauldron cauldron, Scanner s, ArrayList<Recipe> Recipes, Market market) {
 		if (isCreative) {
 			brewCreative(cauldron, s, Recipes, market);
@@ -98,6 +121,17 @@ public class Player {
 		}
 	}
 
+	/**
+	* Conducts the process of brewing in Recipe Mode
+	* <p>
+	* It takes the ingredients of the recipe, as indicated in the spellbook recipes, from the player inventory. It allows the player to cancel the brew and by doing so, returns the
+	* the ingredients and base to the player's inventory. This will not cause any alchemy failures since it takes recipes directly from the unlocked recipes.
+	* </p>
+	*
+	* @param cauldron the cauldron that the brew is being done on
+	* @param s Scanner to be passed onto the brew methods for player interactivity
+	* @param market the market, mostly here for the purpose of tracking successful brews for the market refresh
+	*/
 	private void brewRecipe(Cauldron cauldron, Scanner s, Market market) {
 		spellbook.printRecipes();
 		if (spellbook.getUnlockedRecipes().isEmpty()) {
@@ -162,6 +196,19 @@ public class Player {
 				+ " crystals. You now have " + getCrystals() + " crystals.");
 	}
 
+	/**
+	* Conducts the process of brewing in Creative Mode.
+	* <p>
+	* Lets the player choose the base and the ingredients to be brewed. Consequently, this has the chance of an alchemy failure and leads to an unusable cauldron. It doesn't allow
+	* duplicate ingredients and allows the player to cancel the brew. This can cause alchemy failure-a cauldron to be unusable and require blessing-due to the invalid base-ingredient
+	* combination.
+	* </p>
+	*
+	* @param cauldron the cauldron that the brew is being done on
+	* @param s Scanner to be passed onto the brew methods for player interactivity
+	* @param Recipes the list of valid Recipes to cross-check if the final brew combination is valid
+	* @param market the market, mostly here for the purpose of tracking successful brews for the market refresh
+	*/
 	private void brewCreative(Cauldron cauldron, Scanner s, ArrayList<Recipe> Recipes, Market market) {
 		String[] baseNames = {"SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE"};
 		String[] fruitNames = {"STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO",
@@ -304,6 +351,10 @@ public class Player {
 		}
 	}
 
+	/**
+	* Claims the login bonus of the player, if applicable
+	*
+	*/
 	public void claimLoginBonus() {
 		if (loginBonusClaimed) {
 			System.out.println("You have already claimed your login bonus this session. "
@@ -319,6 +370,12 @@ public class Player {
 		System.out.println("Login bonus claimed! You received 1 " + pick + ".");
 	}
 
+	/**
+	* Checks if the player has the items needed for the brew. (Helper function for Recipe Mode)
+	*
+	* @param recipe the reference recipe for the items needed
+	* @return true if the player has the items; false otherwise
+	*/
 	private boolean hasSufficientIngredients(Recipe recipe) {
 		if (quantityOwned(recipe.getConcoctionBase().getName(), inventory.getBases()) < 1) {
 			return false;
@@ -339,6 +396,13 @@ public class Player {
 		return true;
 	}
 
+	/**
+	* Counts how much of the item being asked that the player has.
+	*
+	* @param name name of the item
+	* @param items the list of items the player has
+	* @return the quantity of the items; 0 if the player posesses none
+	*/
 	private int quantityOwned(String name, ArrayList<InventoryItem> items) {
 		for (int i = 0; i < items.size(); i++) {
 			if (items.get(i).getName().equals(name)) {
@@ -348,6 +412,13 @@ public class Player {
 		return 0;
 	}
 
+	/**
+	* Checks if the player has the fruit (ingredient)
+	*
+	* @param fruits the list of ingredients that the player has
+	* @param name the ingredient being checked for
+	* @return true if the player has it; false otherwise
+	*/
 	private boolean containsName(ArrayList<InventoryItem> fruits, String name) {
 		for (int i = 0; i < fruits.size(); i++) {
 			if (fruits.get(i).getName().equals(name)) {
@@ -357,6 +428,12 @@ public class Player {
 		return false;
 	}
 
+	/**
+	* Turns the list of ingredients that the player has a into a string with commas separating the them.
+	*
+	* @param fruits list of ingredients that the player has
+	* @return the string of comma separated values; returns "none" if the list is empty.
+	*/
 	private String fruitListString(ArrayList<InventoryItem> fruits) {
 		if (fruits.isEmpty()) {
 			return "(none)";
@@ -371,6 +448,12 @@ public class Player {
 		return sb.toString();
 	}
 
+	/**
+	* Reads the next line from the scanner, removing any whitespaces
+	*
+	* @param s the Scanner to read from
+	* @return the trimmed line
+	*/
 	private String readLine(Scanner s) {
 		if (!s.hasNextLine()) {
 			return null;
@@ -378,6 +461,12 @@ public class Player {
 		return s.nextLine().trim();
 	}
 
+	/**
+	* Handles the reading of user inputted values of 'Y' or 'N' by converting them into boolean values; ignores the case of the characters for ease.
+	*
+	* @param s the Scanner being read from
+	* @return true if the user input is 'Y' and false if 'N'. 'null' if no input.
+	*/
 	private Boolean readYesNo(Scanner s) {
 		while (true) {
 			String line = readLine(s);

@@ -108,7 +108,7 @@ public class Cauldron {
 	* to the player's inventory. The program will inform the player if there is nothign to remove.
 	* </p>
 	*
-	* @param index the index of the ingredient to be removed
+	* @param base the index of the ingredient to be removed
 	* @param inventory the player's inventory
 	*/
 	public void addBase(String base, Inventory inventory) {
@@ -128,28 +128,25 @@ public class Cauldron {
 	public Recipe validBrew(ArrayList<Recipe> recipes) {
 		for(int i = 0; i < recipes.size(); i++) {
 			Recipe candidate = recipes.get(i);
-			if(candidate.getIngredients().size() != this.ingredients.size()) {
-				continue;
-			}
-			if(this.concoctionBase == null
-					|| !candidate.getConcoctionBase().getName().equals(this.concoctionBase.getName())) {
-				continue;
-			}
-			boolean allMatch = true;
-			for(int j = 0; j < candidate.getIngredients().size() && allMatch; j++) {
-				String needed = candidate.getIngredients().get(j).getName();
-				boolean found = false;
-				for(int k = 0; k < this.ingredients.size() && !found; k++) {
-					if(this.ingredients.get(k).getName().equals(needed)) {
-						found = true;
+			if(candidate.getIngredients().size() == this.ingredients.size()
+					&& this.concoctionBase != null
+					&& candidate.getConcoctionBase().getName().equals(this.concoctionBase.getName())) {
+				boolean allMatch = true;
+				for(int j = 0; j < candidate.getIngredients().size() && allMatch; j++) {
+					String needed = candidate.getIngredients().get(j).getName();
+					boolean found = false;
+					for(int k = 0; k < this.ingredients.size() && !found; k++) {
+						if(this.ingredients.get(k).getName().equals(needed)) {
+							found = true;
+						}
+					}
+					if(!found) {
+						allMatch = false;
 					}
 				}
-				if(!found) {
-					allMatch = false;
+				if(allMatch) {
+					return candidate;
 				}
-			}
-			if(allMatch) {
-				return candidate;
 			}
 		}
 
@@ -171,6 +168,7 @@ public class Cauldron {
 	* A cauldron is made unusable if a brew is invalid. Takes 1000 crystals from the player to make the cauldron usable again. If the player doesn't have enough crystals,
 	* they will be alerted.
 	* </p>
+	* @param player the player who wants to have their cauldron blessed
 	*/
 
 	public void blessCauldron(Player player) {

@@ -74,7 +74,7 @@ public class Inventory {
 	* @return the index of the item if it's greater than 0, but returns -1 if less than 
 	* 	           or equal to zero
 	*/
-	public int isInInventory(String name, ArrayList<InventoryItem> items) { //returns index
+	public int isInInventory(String name, ArrayList<InventoryItem> items) { 
 		for(int i = 0; i < items.size(); i++) {
 			InventoryItem item = items.get(i);
 			if(name.equals(item.getName()) && item.getQuantity() > 0)

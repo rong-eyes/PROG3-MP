@@ -22,6 +22,10 @@ public class Market {
 	private int maxQty;
 	private int brewsSinceVisit;
 
+	/**
+	* The constructor for Market; initializes what items are to be sold to the player (at random).
+	*
+	*/
 	public Market() {
 		this.randomizer = new Random();
 		this.maxQty = 5;
@@ -30,6 +34,10 @@ public class Market {
 		initializeItems();
 	}
 
+	/*
+	* Initializes the items to be sold at the market. Ensures that if a cauldron is being sold, it is only one and not more.
+	*
+	*/
 	private void initializeItems() {
 		boolean cauldronPlaced = false;
 		for (int i = 0; i < NUM_SLOTS; i++) {

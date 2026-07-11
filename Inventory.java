@@ -36,11 +36,11 @@ public class Inventory {
 	public ArrayList<InventoryItem> getIngredients() {
 		return ingredients;
 	}
-	
+
 	public void setIngredients(ArrayList<InventoryItem> ingredients) {
 		this.ingredients = ingredients;
 	}
-	
+
 	public ArrayList<InventoryItem> getBases() {
 		return bases;
 	}
@@ -52,7 +52,7 @@ public class Inventory {
 	public ArrayList<Cauldron> getCauldrons() {
 		return cauldrons;
 	}
-	
+
 	public void setCauldrons(ArrayList<Cauldron> cauldrons) {
 		this.cauldrons = cauldrons;
 	}

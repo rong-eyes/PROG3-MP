@@ -4,6 +4,9 @@ import java.util.ArrayList;
 public class Spellbook {
 	private ArrayList<Recipe> unlockedRecipes;
 
+	/**
+	* Constructs the spellbook by instantiating an ArrayList<> for the unlocked Recipes to be stored in
+	*/
 	public Spellbook() {
 		unlockedRecipes = new ArrayList<>();
 	}
@@ -16,6 +19,9 @@ public class Spellbook {
 		this.unlockedRecipes = unlockedRecipes;
 	}
 
+	/**
+	* Sorts the unlocked recipes by ID in ascending order
+	*/
 	public void sortRecipes() {
 		int i, j;
 		for (i = 1; i < unlockedRecipes.size(); i++) {
@@ -29,6 +35,12 @@ public class Spellbook {
 		}
 	}
 
+	/**
+	* Gets a recipe from the unlocked recipe list (for brewing in recipe mode)
+	*
+	* @param id the unique identifier for the Recipe
+	* @return the recipe with the corresponding ID; null if not found
+	*/
 	public Recipe getRecipe(int id) {
 		int lo = 0;
 		int hi = unlockedRecipes.size() - 1;
@@ -70,6 +82,11 @@ public class Spellbook {
 		}
 	}
 
+	/**
+	* Adds a recipe to the spellbook (or list of unlocked recipes) whenever a player unlocks a new recipe
+	*
+	* @param recipe the recipe unlocked by the player
+	*/
 	public void addRecipe(Recipe recipe) {
 		unlockedRecipes.add(recipe);
 		sortRecipes();

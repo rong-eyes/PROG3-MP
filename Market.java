@@ -174,7 +174,7 @@ public class Market {
 			return;
 		}
 
-		System.out.println("How many " + name + " would you like to buy? (available: " + stock
+		System.out.println("How many " + name + " would you like to buy? (available: x" + stock
 				+ ", " + price + " crystals each)");
 		int qty = readIntLine(s);
 		if (qty == NO_INPUT) {
@@ -207,6 +207,12 @@ public class Market {
 				+ player.getCrystals() + " crystals.");
 	}
 
+	/**
+	* Handles the seeling of items from a player's inventory to the market for crystals.
+	* However, cauldrons cannot be sold, that is why it's not part of your sellable items
+	* @param player name of the player where their inventory will be used/sold
+ 	* @param s input reader 
+	*/
 	private void sellItems(Player player, Scanner s) {
 		Inventory inv = player.getInventory();
 		ArrayList<InventoryItem> sellables = new ArrayList<>();
@@ -224,13 +230,19 @@ public class Market {
 			return;
 		}
 
-		System.out.println("------------- YOUR SELLABLE ITEMS -------------");
+		System.out.println("----------------------- YOUR SELLABLE ITEMS -----------------------");
+		System.out.printf("%-4s%-28s%-20s%s%n", "", "Item", "Quantity", "Sell");
 		for (int i = 0; i < sellables.size(); i++) {
-			InventoryItem it = sellables.get(i);
-			System.out.println((i + 1) + ". " + it.getName() + " x" + it.getQuantity() + "   (Sell: " + it.getPrice() + " crystals each)");
+			InventoryItem item = sellables.get(i);
+    		String numStr = (i + 1) + ".";
+   			String qtyStr = "x" + item.getQuantity();
+    		String priceStr = item.getPrice() + " crystals each";
+			
+			System.out.printf("%-4s%-28s%-20s%s%n", numStr, item.getName(), qtyStr, priceStr);	
 		}
-		System.out.println("-----------------------------------------------");
-		System.out.println("Enter item number(s) to sell, comma-separated (e.g. 1,2), or 0 to go back:");
+		System.out.println("-------------------------------------------------------------------");
+		System.out.println("Enter the slot number(s) of what items you want to sell, or 0 to go back\n" + //
+						"(e.g. 1,2 = sell the FIRST and SECOND item in the list)");
 		String line = readLineOrNull(s);
 		if (line == null || line.isEmpty() || line.equals("0")) {
 			System.out.println("Returning to the market menu.");
@@ -251,6 +263,14 @@ public class Market {
 		}
 	}
 
+	/**
+	* Handles the selling of a single selected inveotry item back to market. This checks if the player owns the item, 
+	* how much they want to sell, validates if the player is selling the right amount they own, and lastly this also removes
+	* the sold units from inventory.
+	* @param item the item you want to sell
+	* @param player name of the player where their inventory will be used/sold
+ 	* @param s input reader 
+	*/
 	private void sellOneItem(InventoryItem item, Player player, Scanner s) {
 		String name = item.getName();
 		int owned = item.getQuantity();
@@ -284,6 +304,11 @@ public class Market {
 				+ player.getCrystals() + " crystals.");
 	}
 
+	/**
+	* Acts like a search function for the items in the Market. 
+	* @param name the name of the item you want to find
+	* @return if the item is found, it will return it's index, but if not, it will return -1
+	*/
 	private static int catalogIndexOf(String name) {
 		for (int i = 0; i < items.length; i++) {
 			if (items[i].equals(name))
@@ -292,33 +317,60 @@ public class Market {
 		return -1;
 	}
 
+	/**
+	* Helper method that acts as the single source of truth for item resale prices. 
+	* This is done by giving the item name, and it will return how many crystals the 
+	* player gets when selling it to the market.
+	* @param name the name of the item you are selling
+	* @return the index of how much you can sell your item
+	*/
 	public static int sellPriceOf(String name) {
 		int index = catalogIndexOf(name);
-		return (index < 0) ? 0 : sellPrices[index];
+		if (index < 0) {
+       		return 0;
+    	} else {
+        	return sellPrices[index];
+   		}
 	}
 
+	/**
+	* Helper method that takes the comma separated values and take the valid whole numbers ito an ArrayList<Integers>
+	* @param line the comma separated values (e.g. "1,2,3")
+	* @return ordered parsed numbers
+	*/
 	private ArrayList<Integer> parseNumbers(String line) {
 		ArrayList<Integer> nums = new ArrayList<>();
 		String[] parts = line.split(",");
 		for (String part : parts) {
 			String token = part.trim();
-			if (token.isEmpty())
-				continue;
-			try {
-				nums.add(Integer.parseInt(token));
-			} catch (NumberFormatException e) {
-				System.out.println("'" + token + "' is not a valid number and was skipped.");
+			if (!token.isEmpty()) {
+				try {
+					nums.add(Integer.parseInt(token));
+				} catch (NumberFormatException e) {
+					System.out.println("'" + token + "' is not a valid number and was skipped.");
+				}
 			}
 		}
 		return nums;
 	}
 
+	/**
+	* Clears up any useless spaces on the ends of a text
+	* @param s input reader 
+	* @return the string you entered without the extra space int he front and back
+	*/
 	private String readLineOrNull(Scanner s) {
 		if (!s.hasNextLine())
 			return null;
 		return s.nextLine().trim();
 	}
 
+	/**
+	* This is an input validator, where it asks the player to input a number when the user kept on putting letters or 
+	* not a valid integer. This stops the program from going forward.
+	* @param s input reader  
+	* @return the valid integer the player typed, but if not, it will return "Invalid input. Please enter a number."
+	*/
 	private int readIntLine(Scanner s) {
 		while (true) {
 			String line = readLineOrNull(s);
@@ -326,13 +378,14 @@ public class Market {
 				return NO_INPUT;
 			if (line.isEmpty()) {
 				System.out.println("Please enter a number.");
-				continue;
-			}
-			try {
-				return Integer.parseInt(line);
-			} catch (NumberFormatException e) {
-				System.out.println("Invalid input. Please enter a number.");
+			} else {
+				try {
+					return Integer.parseInt(line);
+				} catch (NumberFormatException e) {
+					System.out.println("Invalid input. Please enter a number.");
+				}
 			}
 		}
 	}
 }
+

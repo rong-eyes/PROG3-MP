@@ -1,3 +1,4 @@
+
 package MCO1;
 
 import java.io.IOException;
@@ -9,13 +10,23 @@ import java.util.List;
 
 public class SaveManager {
 
-	private static final String[] FRUIT_NAMES = { "STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO","PINEAPPLE", "KIWI", "BLUEBERRY", "COCONUT" };
-	private static final String[] BASE_NAMES = { "SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE"};
+	private static final String[] FRUIT_NAMES = {
+		"STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO",
+		"PINEAPPLE", "KIWI", "BLUEBERRY", "COCONUT"
+	};
+
+	private static final String[] BASE_NAMES = {
+		"SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE"
+	};
+
 	private static final String NL = "\r\n";
 
-	private SaveManager() {
-	}
-
+	/**
+	* This is responsible for creating the file with the progress info of the player profile
+	* 
+	* @param player The player profile in which the info will be extracted from
+	* @return true if the player progress has been successfully saved onto the file; false otherwise
+	*/
 	public static boolean saveGame(Player player) {
 		String fileName = player.getPlayerName() + ".txt";
 		Inventory inv = player.getInventory();
@@ -50,10 +61,23 @@ public class SaveManager {
 		}
 	}
 
+	/**
+	* Responsible for checking if the save file exists
+	* 
+	* @param name the player/save file name (without the .txt extension)
+	* @return true if the saved player profile exists; false otherwise
+	*/
 	public static boolean saveExists(String name) {
 		return Files.exists(Path.of(name + ".txt"));
 	}
-	
+
+	/**
+	* Responsible for loading the existing player profile
+	*
+	* @param name the player/save file name (without the.txt extension)
+	* @param allRecipes the list of all valid Recipes (in this context, it is used to load the player's unlocked recipes)
+	* @return the Player object with all of the progress information stored in it; null if the player profile doesn't exist.
+	*/
 	public static Player loadGame(String name, ArrayList<Recipe> allRecipes) {
 		Path path = Path.of(name + ".txt");
 		if (!Files.exists(path)) {
@@ -74,38 +98,36 @@ public class SaveManager {
 
 			for (String raw : lines) {
 				String line = raw.trim();
-				if (line.isEmpty()) {
-					continue;
-				}
-				if (line.startsWith("NAME =")) {
-					playerName = valueAfterEquals(line);
-				} else if (line.startsWith("CRYSTALS =")) {
-					crystals = Integer.parseInt(valueAfterEquals(line));
-				} else if (line.equals("[INVENTORY]")) {
-					section = "INVENTORY";
-				} else if (line.startsWith("TOTAL CAULDRONS =")) {
-					totalCauldrons = Integer.parseInt(valueAfterEquals(line));
-				} else if (line.startsWith("USABLE CAULDRONS =")) {
-					usableCauldrons = Integer.parseInt(valueAfterEquals(line));
-				} else if (line.equals("[SPELLBOOK]")) {
-					section = "SPELLBOOK";
-				} else if (section.equals("INVENTORY") && line.contains("=")) {
-					String key = line.substring(0, line.indexOf('=')).trim();
-					int qty = Integer.parseInt(valueAfterEquals(line));
-					if (isBaseName(key)) {
-						bases.add(new InventoryItem(InventoryItem.TYPE_BASE, key, qty));
-					} else {
-						fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, key, qty));
-					}
-				} else if (section.equals("SPELLBOOK")) {
-					for (String idStr : line.split(",")) {
-						String trimmed = idStr.trim();
-						if (trimmed.isEmpty()) {
-							continue;
+				if (!line.isEmpty()) {
+					if (line.startsWith("NAME =")) {
+						playerName = valueAfterEquals(line);
+					} else if (line.startsWith("CRYSTALS =")) {
+						crystals = Integer.parseInt(valueAfterEquals(line));
+					} else if (line.equals("[INVENTORY]")) {
+						section = "INVENTORY";
+					} else if (line.startsWith("TOTAL CAULDRONS =")) {
+						totalCauldrons = Integer.parseInt(valueAfterEquals(line));
+					} else if (line.startsWith("USABLE CAULDRONS =")) {
+						usableCauldrons = Integer.parseInt(valueAfterEquals(line));
+					} else if (line.equals("[SPELLBOOK]")) {
+						section = "SPELLBOOK";
+					} else if (section.equals("INVENTORY") && line.contains("=")) {
+						String key = line.substring(0, line.indexOf('=')).trim();
+						int qty = Integer.parseInt(valueAfterEquals(line));
+						if (isBaseName(key)) {
+							bases.add(new InventoryItem(InventoryItem.TYPE_BASE, key, qty));
+						} else {
+							fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, key, qty));
 						}
-						Recipe r = RecipeLoader.findRecipeById(allRecipes, Integer.parseInt(trimmed));
-						if (r != null) {
-							spellbook.addRecipe(r);
+					} else if (section.equals("SPELLBOOK")) {
+						for (String idStr : line.split(",")) {
+							String trimmed = idStr.trim();
+							if (!trimmed.isEmpty()) {
+								Recipe r = RecipeLoader.findRecipeById(allRecipes, Integer.parseInt(trimmed));
+								if (r != null) {
+									spellbook.addRecipe(r);
+								}
+							}
 						}
 					}
 				}
@@ -152,6 +174,12 @@ public class SaveManager {
 		return usable;
 	}
 
+	/**
+	* Converts the IDs of the unlocked recipes from the spell book into a string with comma-separated values.
+	*
+	* @param spellbook the spellbook containing the unlocked recipe progress
+	* @return the string with the list of the recipe IDs
+	*/
 	private static String spellbookIds(Spellbook spellbook) {
 		ArrayList<Recipe> recipes = spellbook.getUnlockedRecipes();
 		StringBuilder ids = new StringBuilder();

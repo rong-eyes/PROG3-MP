@@ -14,7 +14,7 @@ public class Market {
 	private static final int NO_INPUT = Integer.MIN_VALUE;
 
 	private static final String[] items = {"STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO", "PINEAPPLE", "KIWI", "BLUEBERRY", "COCONUT",
-	                          "SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE", "CAULDRON"};
+	                                        "SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE", "CAULDRON"};
 	private static final int[] buyPrices = {125, 80, 50, 75, 90, 240, 200, 120, 180, 50, 80, 250, 60, 150, 3000};
 	private static final int[] sellPrices = {25, 40, 25, 50, 30, 120, 80, 20, 90, 10, 20, 50, 15, 25, 0};
 	private Random randomizer;
@@ -35,42 +35,51 @@ public class Market {
 		for (int i = 0; i < NUM_SLOTS; i++) {
 			int pick;
 			if (cauldronPlaced)
-				pick = randomizer.nextInt(CAULDRON_INDEX);       // 0..13, cauldron excluded
+				pick = randomizer.nextInt(CAULDRON_INDEX);       
 			else
-				pick = randomizer.nextInt(CAULDRON_INDEX + 1);   // 0..14
+				pick = randomizer.nextInt(CAULDRON_INDEX + 1);   
 
 			itemSlots[0][i] = pick;
 			if (pick == CAULDRON_INDEX) {
-				itemSlots[1][i] = 1;                             // cauldron quantity is exactly 1
+				itemSlots[1][i] = 1;                           
 				cauldronPlaced = true;
 			} else {
-				itemSlots[1][i] = randomizer.nextInt(maxQty) + 1; // 1..maxQty (never 0)
+				itemSlots[1][i] = randomizer.nextInt(maxQty) + 1; 
 			}
 		}
 	}
 
+	/**
+	* Record the number of successful brew. This is used to restock the shop in your next visit
+	*/
 	public void recordBrew() {
 		brewsSinceVisit++;
 	}
 
+	/**
+	* This opens the shop, and checks if the stock needs refreshing. This also lets the
+	* player to buy, sell or leave the shop.
+	* @param player name of the player
+	* @param s object that reads user input from scanner
+	*/
 	public void marketMain(Player player, Scanner s) {
 		if (brewsSinceVisit >= REFRESH_THRESHOLD) {
 			initializeItems();
 			System.out.println("The market has restocked with fresh items!");
 		}
-		brewsSinceVisit = 0; // the counter is "brews since last visit", so reset on every visit
+		brewsSinceVisit = 0; 
 
-		int opt = 0;
-		while (opt != 3) {
+		int option = 0;
+		while (option != 3) {
 			displayMarket();
 			System.out.println("What would you like to do?");
 			System.out.println("1. BUY   2. SELL   3. EXIT MARKET");
-			opt = readIntLine(s);
-			if (opt == NO_INPUT) {
+			option = readIntLine(s);
+			if (option == NO_INPUT) {
 				System.out.println("Leaving the market.");
 				break;
 			}
-			switch (opt) {
+			switch (option) {
 				case 1:
 					buyItems(player, s);
 					break;
@@ -89,19 +98,30 @@ public class Market {
 
 	private void displayMarket() {
 		System.out.println();
-		System.out.println("=============== THE MARKET ===============");
+		System.out.println("========================= THE MARKET =========================");
+		System.out.printf("%-4s%-18s%-15s%s%n", "", "Item", "Quantity", "Price");
 		for (int i = 0; i < NUM_SLOTS; i++) {
 			int type = itemSlots[0][i];
 			if (type == EMPTY_SLOT) {
-				System.out.println((i + 1) + ". [ SOLD OUT ]");
+				System.out.printf("%-4s%-18s%n", (i + 1) + ". [ SOLD OUT ]");
 			} else {
-				System.out.println((i + 1) + ". " + items[type] + " x" + itemSlots[1][i]
-						+ "   (Buy: " + buyPrices[type] + " crystals each)");
+				String slotNum = (i + 1) + ".";
+				String qtyStr = "x " + itemSlots[1][i];
+				String priceStr = buyPrices[type] + " crystals each"; 
+
+				System.out.printf("%-4s%-18s%-15s%s%n", slotNum, items[type], qtyStr, priceStr);
 			}
 		}
-		System.out.println("==========================================");
+		System.out.println("=============================================================");
 	}
 
+	/**
+	* 
+	*
+	*
+	*
+	*
+	*/
 	private void buyItems(Player player, Scanner s) {
 		System.out.println("Enter slot number(s) to buy, comma-separated (e.g. 1,3,4), or 0 to go back:");
 		String line = readLineOrNull(s);

@@ -14,6 +14,10 @@ public class InventoryItem {
 	/**
 	* Constructor for an Inventory item in the player profile; sets its type (Base or Ingredient), name, price (player selling price), and quantity
 	*
+	* @param type the item type: (Base or Ingredient)
+	* @param name the name of the item
+	* @param price the price that the player sells it at
+	* @param quantity the amount of the item the player possesses
 	*/
 	public InventoryItem(String type, String name, int price, int quantity) {
 		this.type = type;
@@ -25,6 +29,9 @@ public class InventoryItem {
 	/**
 	* Constructor for an Inventory item in the Market; sets its type (Base or Ingredient), name, price (Market selling price), and quantity
 	*
+	* @param type the item type: (Base or Ingredient)
+	* @param name the name of the item
+	* @param quantity the amount of the item that will be sold
 	*/
 	public InventoryItem(String type, String name, int quantity) {
 		this(type, name, Market.sellPriceOf(name), quantity);

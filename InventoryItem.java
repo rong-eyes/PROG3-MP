@@ -11,6 +11,10 @@ public class InventoryItem {
 	private int price;
 	private int quantity;
 
+	/**
+	* Constructor for an Inventory item in the player profile; sets its type (Base or Ingredient), name, price (player selling price), and quantity
+	*
+	*/
 	public InventoryItem(String type, String name, int price, int quantity) {
 		this.type = type;
 		this.name = name;
@@ -18,6 +22,10 @@ public class InventoryItem {
 		this.quantity = quantity;
 	}
 
+	/**
+	* Constructor for an Inventory item in the Market; sets its type (Base or Ingredient), name, price (Market selling price), and quantity
+	*
+	*/
 	public InventoryItem(String type, String name, int quantity) {
 		this(type, name, Market.sellPriceOf(name), quantity);
 	}
@@ -54,10 +62,20 @@ public class InventoryItem {
 		quantity = qty;
 	}
 
+	/**
+	* Deducts the inventory item's quantity by a specified amount
+	*
+	* @param qty the specified amount to be deducted
+	*/
 	public void deductQuantity(int qty) {
 		this.quantity -= qty;
 	}
 
+	/**
+	* Increases the inventory item's quantity by a specified amount
+	*
+	* @param qty the specified amount to be added
+	*/
 	public void addQuantity(int qty) {
 		this.quantity += qty;
 	}

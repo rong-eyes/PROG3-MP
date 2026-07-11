@@ -33,64 +33,34 @@ public class Inventory {
 		}
 	}
 
-	/**
-	* Returns what the player's fruit ingredients are in the stack
-	* @return the ingredient list
-	*/
 	public ArrayList<InventoryItem> getIngredients() {
 		return ingredients;
 	}
-	/**
-	* Replaces the player's fruit ingredients in the stack with new ingredients
-	* @param ingredients the new ingredient list
-	*/
+	
 	public void setIngredients(ArrayList<InventoryItem> ingredients) {
 		this.ingredients = ingredients;
 	}
 	
-	/**
-	* Returns the stack of bases the player can use
-	* @return the base list
-	*/
 	public ArrayList<InventoryItem> getBases() {
 		return bases;
 	}
 
-	/**
-	* Replaces the player's bases in the stack with new bases 
-	* @param bases the new base list
-	*/
 	public void setBases(ArrayList<InventoryItem> bases) {
 		this.bases = bases;
 	}
 
-	/**
-	* Returns how many cauldrons the player owns, and which are usable and used.
-	* @return cauldrons the cauldron list
-	*/
 	public ArrayList<Cauldron> getCauldrons() {
 		return cauldrons;
 	}
-	/** 
-	* Replaces the player's cauldron list with new one
-	* @param cauldrons the new cauldron list
-	*/
+	
 	public void setCauldrons(ArrayList<Cauldron> cauldrons) {
 		this.cauldrons = cauldrons;
 	}
 
-	/**
-	* Returns how many usable Cauldrons the player have
-	* @return usableCauldrons number of usable cauldrons
-	*/
 	public int getUsableCauldrons() {
 		return usableCauldrons;
 	}
 
-	/**
-	* Replaces the number of usable cauldrons
-	* @param usableCauldrons new number of usable cauldrons
-	*/
 	public void setUsableCauldrons(int usableCauldrons) {
 		this.usableCauldrons = usableCauldrons;
 	}
@@ -115,7 +85,7 @@ public class Inventory {
 	}
 
 	/**
-	* Chechs if the items is in the list, regardless of it's quantity. 
+	* Checks if the items is in the list, regardless of it's quantity. 
 	* This is a helper function used to compare if your the name you are looking for is there.
 	* @param name item's name that you are looking for
 	* @param items array of items to use for searching
@@ -151,7 +121,6 @@ public class Inventory {
 	* @param item name of the item you want to add
 	* @param amount the quantity of your item that you want to add
 	*/
-
 	public void addInventory(InventoryItem item, int amount) { 
 		ArrayList<InventoryItem> target = listFor(item);
 		int index = this.indexByName(item.getName(), target);
@@ -164,18 +133,20 @@ public class Inventory {
 	}
 
 	/**
-	*
-	*
-	*
-	*
+	* Removes items out of the players's inventory, by using it for brewing a drink or selling a product.
+	* @param item the item you will be deducting from the player's inventory
+	* @param amount the quantity of how much items you will deduct from the player's inventory
 	*/
-	public void removeInventory(InventoryItem item, int amount) { //fruit or base, picked by type
+	public void removeInventory(InventoryItem item, int amount) {
 		ArrayList<InventoryItem> target = listFor(item);
 		int index = this.indexByName(item.getName(), target);
 		if(index != -1)
 			target.get(index).deductQuantity(amount);
 	}
 
+	/**
+	* Add a new usable cauldron to the player's inventory.
+	*/
 	public void addCauldron() {
 		Cauldron cauldron = new Cauldron();
 		cauldrons.add(cauldron);

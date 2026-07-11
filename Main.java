@@ -7,6 +7,10 @@ public class Main {
 
 	private static final String COMPENDIUM_PATH = "POTION COMPENDIUM.csv";
 
+	/**
+	* Constructor for Main; initializes the needed info for the game to run (such as loading recipes and player)
+	*
+	*/
 	private Main() {
 	}
 

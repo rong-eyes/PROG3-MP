@@ -5,7 +5,7 @@ public class Spellbook {
 	private ArrayList<Recipe> unlockedRecipes;
 
 	/**
-	* Constructs the spellbook by instantiating an ArrayList<> for the unlocked Recipes to be stored in
+	* Constructs the spellbook by instantiating an {@code ArrayList<Recipe>} for the unlocked Recipes to be stored in
 	*/
 	public Spellbook() {
 		unlockedRecipes = new ArrayList<>();

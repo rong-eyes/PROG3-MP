@@ -123,7 +123,7 @@ public class Market {
 	* @param s object that reads user input from scanner
 	*/
 	private void buyItems(Player player, Scanner s) {
-		System.out.println("Enter slot number(s) to buy, comma-separated (e.g. 1,3,4), or 0 to go back:");
+		System.out.println("Enter the slot number(s) of what items you want to buy, or 0 to go back \n(e.g. 1,2 = buy the FIRST and SECOND item in the list) ");
 		String line = readLineOrNull(s);
 		if (line == null || line.isEmpty() || line.equals("0")) {
 			System.out.println("Returning to the market menu.");
@@ -146,6 +146,14 @@ public class Market {
 		}
 	}
 
+	/**
+	* 
+	*
+	*
+	*
+	*
+	*
+	*/
 	private void buyOneSlot(int slotIndex, Player player, Scanner s) {
 		int type = itemSlots[0][slotIndex];
 		int stock = itemSlots[1][slotIndex];

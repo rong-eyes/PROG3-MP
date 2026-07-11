@@ -14,6 +14,12 @@ public class RecipeLoader {
 	private RecipeLoader() {
 	}
 
+	/**
+	* Loads all the valid combinations into an ArrayList to be used later as a reference list for combos
+	*
+	* @param path the path that describes the location of the file containing the valid combinations (POTION COMPENDIUM.CSV)
+	* @return an ArrayList with all the valid Recipes (combinations)
+	*/
 	public static ArrayList<Recipe> loadRecipes(String path) {
 		ArrayList<Recipe> recipes = new ArrayList<>();
 		Path csv = Path.of(path);
@@ -59,6 +65,13 @@ public class RecipeLoader {
 		return recipes;
 	}
 
+	/**
+	* Finds the specified recipe from the ID
+	*
+	* @param recipes the list of valid recipes
+	* @param id the ID of recipe to be found
+	* @return returns the Recipe if found; null otherwise
+	*/
 	public static Recipe findRecipeById(ArrayList<Recipe> recipes, int id) {
 		for (int i = 0; i < recipes.size(); i++) {
 			if (recipes.get(i).getConcoctionID() == id) {
@@ -68,6 +81,11 @@ public class RecipeLoader {
 		return null;
 	}
 
+	/**
+	* Removes the Byte Order Mark (BOM) from the beginning of a text string when reading a file
+	*
+	* @param s the string or line in the file being read
+	*/
 	private static String stripBom(String s) {
 		if (!s.isEmpty() && s.charAt(0) == 0xFEFF) {
 			return s.substring(1);

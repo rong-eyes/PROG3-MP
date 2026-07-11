@@ -7,6 +7,10 @@ public class Main {
 
 	private static final String COMPENDIUM_PATH = "POTION COMPENDIUM.csv";
 
+	/**
+	* Constructor for Main; initializes the needed info for the game to run (such as loading recipes and player)
+	*
+	*/
 	private Main() {
 	}
 
@@ -25,6 +29,18 @@ public class Main {
 		sc.close();
 	}
 
+	/**
+	* Handles the initialization of a player profile.
+	* <p>
+	* 'New Game' creates a new player profile (.txt file) with the starter items and recipes. 'Load Game' reads from a previously saved player profile (.txt file) and loads the
+	* parsed info onto the player object of the game. If the user starts a new game with the same name as a previous save, the program will first confirm before overwriting. It returns 
+	* the use back to the main menu if they decide not to confirm overwriting.
+	* </p>
+	*
+	* @param sc the Scanner being read from
+	* @param allRecipes the list of all the unlockable (valid) Recipes in the game
+	* @return the Player object with the proper info loaded onto
+	*/
 	private static Player boot(Scanner sc, ArrayList<Recipe> allRecipes) {
 		while (true) {
 			System.out.println();
@@ -98,6 +114,12 @@ public class Main {
 		}
 	}
 
+	/**
+	* Prompts the user to input a name for the player profile
+	*
+	* @param sc the Scanner being read from
+	* @return the string of the player inputted name
+	*/
 	private static String promptName(Scanner sc) {
 		String name = "";
 		while (name.isEmpty()) {
@@ -115,6 +137,13 @@ public class Main {
 		return name;
 	}
 
+	/**
+	* Prompts the user to input Y (Yes) or N (No); converts the user input into a boolean value
+	*
+	* @param sc the Scanner being read from
+	* @param prompt the message or prompt that the player answers to
+	* @return the true for 'Yes' and false for 'No'
+	*/
 	private static Boolean promptYesNo(Scanner sc, String prompt) {
 		while (true) {
 			System.out.print(prompt);
@@ -134,6 +163,22 @@ public class Main {
 		}
 	}
 
+	/**
+	* Runs the 'Main Menu' of the game where the player can choose what action to do
+	* <ol>
+	*	<li> Brew Concoction to allow the player brew a potion in either creative or recipe mode. </li>
+	* 	<li> Check Inventory to view the items that the player has and how much </li>
+	*	<li> Check Spellbook to view the unlocked recipes </li>
+	*	<li> Visit Market to allow the playe to buy and sell ingredients and buy cauldrons </li>
+	* 	<li> Bless Cauldron to make an unusable cauldron usable again, if any </li>
+	*	<li> Login Bonus to collect the Login Bonus (a random item to be rewarded and placed in the player inventory every login) if applicable </li>
+	* 	<li> Exit Game to terminate the game session </li>
+	* </ol>
+	*
+	* @param player the player profile instantiated at the start of the game
+	* @param sc the Scanner being read from
+	* @param allRecipes the list of valid recipes to be used as a reference list throughout the entire session
+	*/
 	private static void runMainMenu(Player player, Scanner sc, ArrayList<Recipe> allRecipes) {
 		// One shared market for the whole session; also passed to the brew wiring (Packet D).
 		Market market = new Market();
@@ -193,6 +238,19 @@ public class Main {
 		}
 	}
 
+	/**
+	* Runs the 'Brew Concoction' action of the game where the player can brew a potion in creative or recipe mode
+	* <ol>
+	*	<li> Recipe Mode: Lets player choose among their unlocked recipes what to brew </li>
+	* 	<li> Creative Mode: Lets the player play around different combinations to discover recipes </li>
+	* 	<li> Cancel (0): Lets the player go back to Main menu </li>
+	* </ol>
+	*
+	* @param player the player profile instantiated at the start of the game
+	* @param sc the Scanner being read from
+	* @param allRecipes the list of valid recipes to be used as a reference list throughout the entire session
+	* @param market the market, for tracking brew progress for the market refresh quota
+	*/
 	private static void handleBrew(Player player, Scanner sc, ArrayList<Recipe> allRecipes, Market market) {
 		ArrayList<Cauldron> cauldrons = player.getInventory().getCauldrons();
 		int usable = countUsable(cauldrons);
@@ -249,6 +307,15 @@ public class Main {
 		}
 	}
 
+	/**
+	* Runs the 'Bless Cauldron' action of the game where the player can bless a cauldron to make it usable again.
+	* <p>
+	* Only blesses one cauldron at a time and blesses the first cauldron that is unusable in the list that the iterator encounters.
+	* </p>
+	*
+	* @param player the player profile instantiated at the start of the game
+	* @param sc the Scanner being read from
+	*/
 	private static void handleBless(Player player, Scanner sc) {
 		ArrayList<Cauldron> cauldrons = player.getInventory().getCauldrons();
 		Cauldron junked = null;
@@ -264,6 +331,12 @@ public class Main {
 		junked.blessCauldron(player);
 	}
 
+	/**
+	* Counts the amount of usable cauldrons that player possesses.
+	*
+	* @param cauldrons the list of cauldrons that the player posseses.
+	* @return the computed total quantity of usable cauldrons in the players possession.
+	*/
 	private static int countUsable(ArrayList<Cauldron> cauldrons) {
 		int usable = 0;
 		for (int i = 0; i < cauldrons.size(); i++) {
@@ -274,6 +347,12 @@ public class Main {
 		return usable;
 	}
 
+	/**
+	* Iterates through the players list of cauldrons to search for the first usable cauldron
+	*
+	* @param cauldrons the list of cauldrons that the player posseses.
+	* @return the first usable cauldron in the players list of cauldrons; null if none are usable
+	*/
 	private static Cauldron firstUsable(ArrayList<Cauldron> cauldrons) {
 		for (int i = 0; i < cauldrons.size(); i++) {
 			if (cauldrons.get(i).isUsable()) {

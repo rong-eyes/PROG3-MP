@@ -11,9 +11,6 @@ public class RecipeLoader {
 
 	private static final int FIRST_INGREDIENT_COLUMN = 4;
 
-	private RecipeLoader() {
-	}
-
 	/**
 	* Loads all the valid combinations into an ArrayList to be used later as a reference list for combos
 	*
@@ -34,28 +31,27 @@ public class RecipeLoader {
 			List<String> lines = Files.readAllLines(csv, StandardCharsets.UTF_8);
 			for (String raw : lines) {
 				String line = stripBom(raw).trim();
-				if (line.isEmpty()) {
-					continue;
-				}
-				String[] fields = line.split(",", -1);
-				if (fields.length < FIRST_INGREDIENT_COLUMN + 1) {
-					continue; // need at least ID, NAME, BASE, PRICE and one ingredient
-				}
-				try {
-					int id = Integer.parseInt(fields[0].trim());
-					String name = fields[1].trim();
-					String base = fields[2].trim();
-					int price = Integer.parseInt(fields[3].trim());
-					ArrayList<InventoryItem> ingredients = new ArrayList<>();
-					for (int i = FIRST_INGREDIENT_COLUMN; i < fields.length; i++) {
-						String ing = fields[i].trim();
-						if (!ing.isEmpty()) {
-							ingredients.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, ing, 1));
+				if (!line.isEmpty()) {
+					String[] fields = line.split(",", -1);
+					// need at least ID, NAME, BASE, PRICE and one ingredient
+					if (fields.length >= FIRST_INGREDIENT_COLUMN + 1) {
+						try {
+							int id = Integer.parseInt(fields[0].trim());
+							String name = fields[1].trim();
+							String base = fields[2].trim();
+							int price = Integer.parseInt(fields[3].trim());
+							ArrayList<InventoryItem> ingredients = new ArrayList<>();
+							for (int i = FIRST_INGREDIENT_COLUMN; i < fields.length; i++) {
+								String ing = fields[i].trim();
+								if (!ing.isEmpty()) {
+									ingredients.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, ing, 1));
+								}
+							}
+							recipes.add(new Recipe(id, name, base, price, ingredients));
+						} catch (NumberFormatException e) {
+							// skip this malformed row and keep loading the rest
 						}
 					}
-					recipes.add(new Recipe(id, name, base, price, ingredients));
-				} catch (NumberFormatException e) {
-					// skip this malformed row and keep loading the rest
 				}
 			}
 		} catch (IOException e) {
@@ -64,6 +60,7 @@ public class RecipeLoader {
 
 		return recipes;
 	}
+
 
 	/**
 	* Finds the specified recipe from the ID

@@ -1,9 +1,14 @@
+/*
+ * Potion Prodigy (MCO1) - Player.java
+ * A player: name, crystals, inventory, spellbook, and their actions.
+ */
 package MCO1;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Player {
+	
 	private final String playerName;
 	private Inventory inventory;
 	private int crystals;
@@ -85,7 +90,7 @@ public class Player {
 		return playerName;
 	}
 
-	public void brewConcoction(boolean isCreative, Cauldron cauldron, Scanner s, ArrayList<Recipe> Recipes, Market market) {
+	public void BrewConcoction(boolean isCreative, Cauldron cauldron, Scanner s, ArrayList<Recipe> Recipes, Market market) {
 		if (isCreative) {
 			brewCreative(cauldron, s, Recipes, market);
 		} else {
@@ -108,20 +113,23 @@ public class Player {
 				System.out.println("No input received. Returning to the main menu.");
 				return;
 			}
-			int id;
+			int id = 0;
+			boolean valid = true;
 			try {
 				id = Integer.parseInt(line);
 			} catch (NumberFormatException e) {
 				System.out.println("Invalid input. Enter a numeric concoction ID, or 0 to cancel:");
-				continue;
+				valid = false;
 			}
-			if (id == 0) {
-				System.out.println("Brew cancelled. Returning to the main menu.");
-				return;
-			}
-			chosen = spellbook.getRecipe(id);
-			if (chosen == null) {
-				System.out.println("That concoction is not in your spellbook. Enter a valid ID, or 0 to cancel:");
+			if (valid) {
+				if (id == 0) {
+					System.out.println("Brew cancelled. Returning to the main menu.");
+					return;
+				}
+				chosen = spellbook.getRecipe(id);
+				if (chosen == null) {
+					System.out.println("That concoction is not in your spellbook. Enter a valid ID, or 0 to cancel:");
+				}
 			}
 		}
 
@@ -169,27 +177,30 @@ public class Player {
 				System.out.println("No input received. Returning to the main menu.");
 				return;
 			}
-			int opt;
+			int opt = 0;
+			boolean valid = true;
 			try {
 				opt = Integer.parseInt(line);
 			} catch (NumberFormatException e) {
 				System.out.println("Invalid input. Enter 1-5, or 0 to cancel.");
-				continue;
+				valid = false;
 			}
-			if (opt == 0) {
-				System.out.println("Brew cancelled. Returning to the main menu.");
-				return;
-			}
-			if (opt < 1 || opt > baseNames.length) {
-				System.out.println("Invalid choice. Enter 1-5, or 0 to cancel.");
-				continue;
-			}
-			String candidate = baseNames[opt - 1];
-			if (inventory.isInInventory(candidate, inventory.getBases()) != -1) {
-				chosenBase = candidate;
-				System.out.println(chosenBase + " selected as your concoction base.");
-			} else {
-				System.out.println("You don't own any " + candidate + ". Choose a base you own.");
+			if (valid) {
+				if (opt == 0) {
+					System.out.println("Brew cancelled. Returning to the main menu.");
+					return;
+				}
+				if (opt < 1 || opt > baseNames.length) {
+					System.out.println("Invalid choice. Enter 1-5, or 0 to cancel.");
+				} else {
+					String candidate = baseNames[opt - 1];
+					if (inventory.isInInventory(candidate, inventory.getBases()) != -1) {
+						chosenBase = candidate;
+						System.out.println(chosenBase + " selected as your concoction base.");
+					} else {
+						System.out.println("You don't own any " + candidate + ". Choose a base you own.");
+					}
+				}
 			}
 		}
 
@@ -206,45 +217,46 @@ public class Player {
 				System.out.println("No input received. Returning to the main menu.");
 				return;
 			}
-			int opt;
+			int opt = 0;
+			boolean valid = true;
 			try {
 				opt = Integer.parseInt(line);
 			} catch (NumberFormatException e) {
 				System.out.println("Invalid input. Enter 1-9, or 0 to cancel.");
-				continue;
+				valid = false;
 			}
-			if (opt == 0) {
-				System.out.println("Brew cancelled. Returning to the main menu.");
-				return;
-			}
-			if (opt < 1 || opt > fruitNames.length) {
-				System.out.println("Invalid choice. Enter 1-9, or 0 to cancel.");
-				continue;
-			}
-			String fruit = fruitNames[opt - 1];
-			if (containsName(chosenFruits, fruit)) {
-				System.out.println(fruit + " is already in the cauldron; no duplicates allowed.");
-				continue;
-			}
-			if (inventory.isInInventory(fruit, inventory.getIngredients()) == -1) {
-				System.out.println("You don't own any " + fruit + ". Choose a fruit you own.");
-				continue;
-			}
-			chosenFruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, fruit, 1));
-			System.out.println(fruit + " added to the cauldron.");
-
-			if (chosenFruits.size() == 3) {
-				System.out.println("The cauldron is full (3 fruits).");
-				doneAdding = true;
-			} else {
-				System.out.println("Add another fruit? (Y/N):");
-				Boolean more = readYesNo(s);
-				if (more == null) {
-					System.out.println("No input received. Returning to the main menu.");
+			if (valid) {
+				if (opt == 0) {
+					System.out.println("Brew cancelled. Returning to the main menu.");
 					return;
 				}
-				if (!more) {
-					doneAdding = true;
+				if (opt < 1 || opt > fruitNames.length) {
+					System.out.println("Invalid choice. Enter 1-9, or 0 to cancel.");
+				} else {
+					String fruit = fruitNames[opt - 1];
+					if (containsName(chosenFruits, fruit)) {
+						System.out.println(fruit + " is already in the cauldron; no duplicates allowed.");
+					} else if (inventory.isInInventory(fruit, inventory.getIngredients()) == -1) {
+						System.out.println("You don't own any " + fruit + ". Choose a fruit you own.");
+					} else {
+						chosenFruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, fruit, 1));
+						System.out.println(fruit + " added to the cauldron.");
+
+						if (chosenFruits.size() == 3) {
+							System.out.println("The cauldron is full (3 fruits).");
+							doneAdding = true;
+						} else {
+							System.out.println("Add another fruit? (Y/N):");
+							Boolean more = readYesNo(s);
+							if (more == null) {
+								System.out.println("No input received. Returning to the main menu.");
+								return;
+							}
+							if (!more) {
+								doneAdding = true;
+							}
+						}
+					}
 				}
 			}
 		}

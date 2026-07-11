@@ -66,6 +66,7 @@ public class Main {
 					return null;
 				}
 				// Warn up front when the name would overwrite an existing save (spec p.1 1.c.i).
+				boolean declined = false;
 				if (SaveManager.saveExists(name)) {
 					Boolean cont = promptYesNo(sc, "A save file named \"" + name
 							+ ".txt\" already exists. Starting a new game will overwrite it"
@@ -76,12 +77,14 @@ public class Main {
 					if (!cont) {
 						// Declined: back to the start menu to pick another name or load the save.
 						System.out.println("Returning to the start menu.");
-						continue;
+						declined = true;
 					}
 				}
-				Player player = new Player(name, allRecipes);
-				System.out.println("Welcome, " + name + "! Your alchemy adventure begins.");
-				return player;
+				if (!declined) {
+					Player player = new Player(name, allRecipes);
+					System.out.println("Welcome, " + name + "! Your alchemy adventure begins.");
+					return player;
+				}
 			} else if (choice == 2) {
 				String name = promptName(sc);
 				if (name == null) {
@@ -197,39 +200,40 @@ public class Main {
 				System.out.println();
 				System.out.println("No more input. Exiting game. Goodbye!");
 				running = false;
-				continue;
-			}
-
-			String line = sc.nextLine().trim();
-			if (line.isEmpty()) {
-				System.out.println("Invalid choice. Please enter a number from 1 to 7.");
-				continue;
-			}
-			int choice;
-			try {
-				choice = Integer.parseInt(line);
-			} catch (NumberFormatException e) {
-				System.out.println("Invalid input. Please enter a number from 1 to 7.");
-				continue;
-			}
-
-			switch (choice) {
-				case 1 -> handleBrew(player, sc, allRecipes, market);
-				case 2 -> {
-					System.out.println();
-					System.out.println("========== INVENTORY ==========");
-					player.getInventory().displayInventory();
+			} else {
+				String line = sc.nextLine().trim();
+				if (line.isEmpty()) {
+					System.out.println("Invalid choice. Please enter a number from 1 to 7.");
+				} else {
+					int choice = 0;
+					boolean valid = true;
+					try {
+						choice = Integer.parseInt(line);
+					} catch (NumberFormatException e) {
+						System.out.println("Invalid input. Please enter a number from 1 to 7.");
+						valid = false;
+					}
+					if (valid) {
+						switch (choice) {
+							case 1 -> handleBrew(player, sc, allRecipes, market);
+							case 2 -> {
+								System.out.println();
+								System.out.println("========== INVENTORY ==========");
+								player.getInventory().displayInventory();
+							}
+							case 3 -> player.getSpellbook().printRecipes();
+							case 4 -> market.marketMain(player, sc);
+							case 5 -> handleBless(player, sc);
+							case 6 -> player.claimLoginBonus();
+							case 7 -> {
+								SaveManager.saveGame(player);
+								System.out.println("Thanks for playing Potion Prodigy. Goodbye!");
+								running = false;
+							}
+							default -> System.out.println("Invalid choice. Please enter a number from 1 to 7.");
+						}
+					}
 				}
-				case 3 -> player.getSpellbook().printRecipes();
-				case 4 -> market.marketMain(player, sc);
-				case 5 -> handleBless(player, sc);
-				case 6 -> player.claimLoginBonus();
-				case 7 -> {
-					SaveManager.saveGame(player);
-					System.out.println("Thanks for playing Potion Prodigy. Goodbye!");
-					running = false;
-				}
-				default -> System.out.println("Invalid choice. Please enter a number from 1 to 7.");
 			}
 		}
 	}
@@ -270,33 +274,35 @@ public class Main {
 			String line = sc.nextLine().trim();
 			if (line.isEmpty()) {
 				System.out.println("Invalid choice. Enter 1, 2, or 0.");
-				continue;
-			}
-			int mode;
-			try {
-				mode = Integer.parseInt(line);
-			} catch (NumberFormatException e) {
-				System.out.println("Invalid input. Enter 1, 2, or 0.");
-				continue;
-			}
-
-			if (mode == 0) {
-				System.out.println("Returning to the main menu.");
-				return;
-			} else if (mode == 1) {
-				player.brewConcoction(false, firstUsable(cauldrons), sc, allRecipes, market);
-				return;
-			} else if (mode == 2) {
-				if (usable <= 1) {
-					System.out.println("Creative mode is disabled with only " + usable
-							+ " usable cauldron left: a failed experiment would leave you with none. "
-							+ "Try recipe mode instead.");
-					continue;
-				}
-				player.brewConcoction(true, firstUsable(cauldrons), sc, allRecipes, market);
-				return;
 			} else {
-				System.out.println("Invalid choice. Enter 1, 2, or 0.");
+				int mode = 0;
+				boolean valid = true;
+				try {
+					mode = Integer.parseInt(line);
+				} catch (NumberFormatException e) {
+					System.out.println("Invalid input. Enter 1, 2, or 0.");
+					valid = false;
+				}
+				if (valid) {
+					if (mode == 0) {
+						System.out.println("Returning to the main menu.");
+						return;
+					} else if (mode == 1) {
+						player.BrewConcoction(false, firstUsable(cauldrons), sc, allRecipes, market);
+						return;
+					} else if (mode == 2) {
+						if (usable <= 1) {
+							System.out.println("Creative mode is disabled with only " + usable
+									+ " usable cauldron left: a failed experiment would leave you with none. "
+									+ "Try recipe mode instead.");
+						} else {
+							player.BrewConcoction(true, firstUsable(cauldrons), sc, allRecipes, market);
+							return;
+						}
+					} else {
+						System.out.println("Invalid choice. Enter 1, 2, or 0.");
+					}
+				}
 			}
 		}
 	}
@@ -324,7 +330,7 @@ public class Main {
 		}
 		junked.blessCauldron(player);
 	}
-	
+
 	/**
 	* Counts the amount of usable cauldrons that player possesses.
 	*

@@ -103,7 +103,7 @@ public class Market {
 		for (int i = 0; i < NUM_SLOTS; i++) {
 			int type = itemSlots[0][i];
 			if (type == EMPTY_SLOT) {
-				System.out.printf("%-4s%-18s%n", (i + 1) + ". [ SOLD OUT ]");
+				System.out.printf("%-4s%-18s%n", (i + 1) + ".", "[ SOLD OUT ]");
 			} else {
 				String slotNum = (i + 1) + ".";
 				String qtyStr = "x " + itemSlots[1][i];
@@ -116,11 +116,11 @@ public class Market {
 	}
 
 	/**
-	* 
-	*
-	*
-	*
-	*
+	* Handles the buying transaction from the player to the market. If he item you want to buy is not empty,
+	* it will ask the player for the quantity. However if the item you want to buy is empty, it will say
+	* Slot x is sold out.
+	* @param player the player who wants to buy the items
+	* @param s object that reads user input from scanner
 	*/
 	private void buyItems(Player player, Scanner s) {
 		System.out.println("Enter slot number(s) to buy, comma-separated (e.g. 1,3,4), or 0 to go back:");

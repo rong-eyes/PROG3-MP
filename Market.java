@@ -120,7 +120,7 @@ public class Market {
 	* it will ask the player for the quantity. However if the item you want to buy is empty, it will say
 	* Slot x is sold out.
 	* @param player the player who wants to buy the items
-	* @param s object that reads user input from scanner
+	* @param s input reader
 	*/
 	private void buyItems(Player player, Scanner s) {
 		System.out.println("Enter the slot number(s) of what items you want to buy, or 0 to go back \n(e.g. 1,2 = buy the FIRST and SECOND item in the list) ");
@@ -147,12 +147,12 @@ public class Market {
 	}
 
 	/**
-	* 
-	*
-	*
-	*
-	*
-	*
+	* Handles the purchasing of item in the market. This method ensures wheter the item is a cauldron or an item. 
+	* This also validates all conditions such as input, stock and money of the player, and updates the player's 
+	* inventory, and clears the market slot.
+	* @param slotIndex the marketslot being purchased
+	* @param player name of the player where their inventory will be used/added
+ 	* @param s input reader 
 	*/
 	private void buyOneSlot(int slotIndex, Player player, Scanner s) {
 		int type = itemSlots[0][slotIndex];

@@ -1,15 +1,14 @@
 package MCO1;
 
 
-public class InventoryItem {
+public abstract class InventoryItem {
 
-	public static final String TYPE_INGREDIENT = "INGREDIENT";
-	public static final String TYPE_BASE = "BASE";
+	protected static final String TYPE_INGREDIENT = "INGREDIENT";
+	protected static final String TYPE_BASE = "BASE";
 
-	private String type;
-	private String name;
-	private int price;
-	private int quantity;
+	protected String name;
+	protected int price;
+	protected int quantity;
 
 	/**
 	* Constructor for an Inventory item in the player profile; sets its type (Base or Ingredient), name, price (player selling price), and quantity

@@ -19,7 +19,7 @@ public class SaveManager {
 		"SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE"
 	};
 
-	private static final String NL = "\r\n";
+	private static final String NL = "\r\n"; //string newline
 
 	/**
 	* This is responsible for creating the file with the progress info of the player profile
@@ -53,10 +53,8 @@ public class SaveManager {
 
 		try {
 			Files.writeString(Path.of(fileName), sb.toString(), StandardCharsets.UTF_8);
-			System.out.println("Your progress has been saved to \"" + fileName + "\".");
 			return true;
 		} catch (IOException e) {
-			System.out.println("Error: your progress could not be saved to \"" + fileName + "\".");
 			return false;
 		}
 	}
@@ -81,7 +79,6 @@ public class SaveManager {
 	public static Player loadGame(String name, ArrayList<Recipe> allRecipes) {
 		Path path = Path.of(name + ".txt");
 		if (!Files.exists(path)) {
-			System.out.println("The save file \"" + name + ".txt\" could not be found.");
 			return null;
 		}
 
@@ -143,14 +140,11 @@ public class SaveManager {
 			Inventory inventory = new Inventory(fruits, bases, cauldrons);
 			inventory.setUsableCauldrons(usableCauldrons);
 
-			Player player = new Player(playerName, inventory, crystals, spellbook);
-			System.out.println("The save file has been successfully loaded.");
+			Player player = new Player(playerName, inventory, crystals, spellbook)
 			return player;
 		} catch (IOException e) {
-			System.out.println("Error: the save file \"" + name + ".txt\" could not be read.");
 			return null;
 		} catch (RuntimeException e) {
-			System.out.println("Error: the save file \"" + name + ".txt\" is corrupted and could not be loaded.");
 			return null;
 		}
 	}

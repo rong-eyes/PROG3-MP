@@ -1,6 +1,3 @@
-package MCO1;
-
-
 public abstract class InventoryItem {
 
 	protected static final String TYPE_INGREDIENT = "INGREDIENT";
@@ -19,7 +16,6 @@ public abstract class InventoryItem {
 	* @param quantity the amount of the item the player possesses
 	*/
 	public InventoryItem(String type, String name, int price, int quantity) {
-		this.type = type;
 		this.name = name;
 		this.price = price;
 		this.quantity = quantity;
@@ -34,14 +30,6 @@ public abstract class InventoryItem {
 	*/
 	public InventoryItem(String type, String name, int quantity) {
 		this(type, name, Market.sellPriceOf(name), quantity);
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 
 	public String getName() {

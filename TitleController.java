@@ -24,23 +24,18 @@ public class TitleController {
 		switch(scenario) {
 			case 0:
 				// SWITCH TO HOMESCREEN
-				System.out.println(name); //just for debugging
-				
-				/*
-				 * Player p = model.playerProfile;
-				 * home.setPlayer(p);
-				 * switchScreen("HOME");
-				 */
+				Player p = model.playerProfile(name);
+				home.setPlayer(p);
+				switchScreen("HOME");
 				break;
 			case 1:
 				boolean overwrite = view.promptOverWriteConfirm();
 				if(overwrite) {
 					model.playerProfile(name);
-					/*
-					 * Player p = model.playerProfile;
-					 * home.setPlayer(p);
-					 * switchScreen("HOME");
-					 */
+
+					Player p = model.playerProfile(name);
+					home.setPlayer(p);
+					switchScreen("HOME");
 				}
 				break;
 			case 2:
@@ -50,6 +45,27 @@ public class TitleController {
 	}
 	
 	private void handleLoadGame() {
+		String name = view.promptPlayerName();
 		
+		int scenario = model.loadSave(name);
+		
+		switch(scenario) {
+			case 0:
+				home.setPlayer(model.getCurrentPlayer());
+				switchScreen("HOME");
+				break;
+			case 1:
+				boolean overwrite = view.promptNewGameConfirm();
+				if(overwrite) {
+					model.playerProfile(name);
+	
+					Player p = model.playerProfile(name);
+					home.setPlayer(p);
+					switchScreen("HOME");
+				}
+				break;
+			case 2:
+				break;
+		}
 	}
 }

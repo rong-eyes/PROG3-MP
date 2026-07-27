@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 
@@ -68,7 +69,7 @@ public class CustomPopUp{
 	
 	//WILL NEED TO EDIT THE POSITIONS
 	private JButton customButton(String path) {
-		JButton button = new JButton(new ImageIcon(new ImageIcon(getClass().getResource(path)).getImage().getScaledInstance(330, 80, Image.SCALE_SMOOTH)));
+		JButton button = new JButton(new ImageIcon(new ImageIcon(getClass().getResource(path)).getImage().getScaledInstance(180, 45, Image.SCALE_SMOOTH)));
 		button.setContentAreaFilled(false);
 		button.setFocusPainted(false);
 		button.setBorderPainted(false);
@@ -82,6 +83,8 @@ public class CustomPopUp{
         JTextField textField = new JTextField(15);
         JLabel label = new JLabel("Enter your name: ");
         JButton enter = new JButton("OK");
+        
+        label.setFont(new Font("Times New Roman", Font.BOLD, 20));
         
         final String[] result = new String[1];
         enter.addActionListener(e -> {result[0] = textField.getText();
@@ -113,9 +116,11 @@ public class CustomPopUp{
     	JLabel label = new JLabel(message);							//the prompt
     	cd.getContentPanel().add(label);
     	
+    	label.setFont(new Font("Times New Roman", Font.BOLD, 20));
+    	
     	JButton confirm = cd.customButton("/PotionProdigyAssets/UI Assets/Confirm.png");
     	JButton cancel = cd.customButton("/PotionProdigyAssets/UI Assets/Cancel.png");
-    	cd.getButtonPanel().setLayout(new FlowLayout(FlowLayout.CENTER));
+    	cd.getButtonPanel().setLayout(new FlowLayout(FlowLayout.CENTER, 15, 10));
     	cd.getButtonPanel().add(confirm);
         cd.getButtonPanel().add(cancel);
         
@@ -127,7 +132,9 @@ public class CustomPopUp{
         cancel.addActionListener(e -> {result[0] = false;
 										cd.getDialog().dispose();
         							  });
-    	cd.getDialog().setVisible(true);
+        cd.getDialog().pack();
+        cd.getDialog().setLocationRelativeTo(null);
+        cd.getDialog().setVisible(true);
         
     	return result[0];
     }

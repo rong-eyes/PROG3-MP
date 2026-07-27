@@ -1,5 +1,3 @@
-package MCO1;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -40,11 +38,11 @@ public class RecipeLoader {
 							String name = fields[1].trim();
 							String base = fields[2].trim();
 							int price = Integer.parseInt(fields[3].trim());
-							ArrayList<InventoryItem> ingredients = new ArrayList<>();
+							ArrayList<Ingredient> ingredients = new ArrayList<>();
 							for (int i = FIRST_INGREDIENT_COLUMN; i < fields.length; i++) {
 								String ing = fields[i].trim();
 								if (!ing.isEmpty()) {
-									ingredients.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, ing, 1));
+									ingredients.add(new Ingredient(ing, 1));
 								}
 							}
 							recipes.add(new Recipe(id, name, base, price, ingredients));

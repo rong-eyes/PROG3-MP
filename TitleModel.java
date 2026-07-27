@@ -25,6 +25,10 @@ public class TitleModel { //the model for the startup.Derived from MCO1 Main and
 		this.isGameStarted = isGameStarted;
 	}
 	
+	public Player getCurrentPlayer() {
+		return this.currentPlayer;
+	}
+	
 	public int createNewGame(String name) {
 		if(name == null || name.trim().isEmpty())
 			return cancelled;
@@ -33,12 +37,22 @@ public class TitleModel { //the model for the startup.Derived from MCO1 Main and
 			//in console ver, it prompts an overwrite confirmation
 			return overwrite;
 		
-		this.currentPlayer = new Player(name, allRecipes);
 		return success;
 	}
 	
-	public int loadGame(String name) {
-		return 0;
+	public int loadSave(String name) {
+		if(name == null || name.trim().isEmpty())
+			return cancelled;
+		
+		Player p = SaveManager.loadGame(name, allRecipes);
+		
+		if(p != null) {
+			this.currentPlayer = p;
+			this.setGameStarted(true);
+			return success;
+		}else { 		//if save file doesnt exist
+			return overwrite;
+		}
 	}
 	
 	public Player playerProfile(String name) {

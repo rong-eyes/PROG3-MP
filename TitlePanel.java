@@ -87,4 +87,8 @@ public class TitlePanel extends JPanel{ //the View for SaveManager / Title Scree
 	public boolean promptOverWriteConfirm() {
 		return CustomPopUp.promptYesNo(this, "A save file already has that name. Overwrite it?");
 	}
+	
+	public boolean promptNewGameConfirm() {
+		return CustomPopUp.promptYesNo(this, "No such save exists. Start a new game instead?");
+	}
 }

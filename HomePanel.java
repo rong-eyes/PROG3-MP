@@ -36,7 +36,7 @@ public class HomePanel extends JPanel {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
 		this.setDoubleBuffered(true); //better game performance
 		
-		cabinet = makeLabel("/PotionProdigyAssets/UI Assets/Home Screen/Inventory.png", 720, 0);
+		cabinet = makeLabel("/PotionProdigyAssets/UI Assets/Home Screen/Inventory.png", 700, 0);
 		cabinet.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		this.add(cabinet);
 		
@@ -116,6 +116,13 @@ public class HomePanel extends JPanel {
 		return CustomPopUp.promptBrewOrBless(this);
 	}
 	
+	public boolean promptBrewMode() {
+		return CustomPopUp.promptBrewMode(this);
+	}
+	
+	public int WelcomeMessage(String p, boolean newGame) {
+		return CustomPopUp.promptWelcome(this, p, newGame);
+	}
 
 	public Player getPlayer() {
 		return p;

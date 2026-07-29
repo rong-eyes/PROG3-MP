@@ -32,7 +32,7 @@ public class Recipe {
 		return name;
 	}
 
-	public InventoryItem getConcoctionBase() {
+	public Base getConcoctionBase() {
 		return concoctionBase;
 	}
 

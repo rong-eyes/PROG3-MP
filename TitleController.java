@@ -1,16 +1,13 @@
-import javax.swing.JPanel;
 
 public class TitleController {
 	private TitlePanel view;
 	private TitleModel model;
-	private JPanel mainPanel;
-	private HomePanel home;
+	private PotionProdigy main;
 	
-	public TitleController(TitlePanel view, TitleModel model, JPanel main, HomePanel home) {
+	public TitleController(TitlePanel view, TitleModel model, PotionProdigy main) {
 		this.view = view;
-		this.model = new TitleModel();
-		this.mainPanel = main;
-		this.home = home;
+		this.model = model;
+		this.main = main;
 		
 		view.addNewGameListener(e -> handleNewGame());
 		view.addLoadGameListener(e -> handleLoadGame());
@@ -25,17 +22,15 @@ public class TitleController {
 			case 0:
 				// SWITCH TO HOMESCREEN
 				Player p = model.playerProfile(name);
-				home.setPlayer(p);
-				switchScreen("HOME");
+				SaveManager.saveGame(p);
+				main.HomeScreen(p);
 				break;
 			case 1:
 				boolean overwrite = view.promptOverWriteConfirm();
 				if(overwrite) {
-					model.playerProfile(name);
-
-					Player p = model.playerProfile(name);
-					home.setPlayer(p);
-					switchScreen("HOME");
+					Player overwrittenP = model.playerProfile(name);
+					SaveManager.saveGame(overwrittenP);
+					main.HomeScreen(overwrittenP);
 				}
 				break;
 			case 2:
@@ -51,17 +46,16 @@ public class TitleController {
 		
 		switch(scenario) {
 			case 0:
-				home.setPlayer(model.getCurrentPlayer());
-				switchScreen("HOME");
+				Player p = model.getCurrentPlayer();
+				main.HomeScreen(p);
 				break;
 			case 1:
 				boolean overwrite = view.promptNewGameConfirm();
 				if(overwrite) {
 					model.playerProfile(name);
 	
-					Player p = model.playerProfile(name);
-					home.setPlayer(p);
-					switchScreen("HOME");
+					Player overwrittenP = model.playerProfile(name);
+					main.HomeScreen(overwrittenP);
 				}
 				break;
 			case 2:

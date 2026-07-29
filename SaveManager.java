@@ -1,6 +1,3 @@
-
-package MCO1;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -8,7 +5,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SaveManager {
+public class SaveManager { //Title Panel Model
 
 	private static final String[] FRUIT_NAMES = {
 		"STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO",
@@ -19,7 +16,7 @@ public class SaveManager {
 		"SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE"
 	};
 
-	private static final String NL = "\r\n"; //string newline
+	private static final String NL = "\r\n";
 
 	/**
 	* This is responsible for creating the file with the progress info of the player profile
@@ -38,11 +35,11 @@ public class SaveManager {
 		sb.append(NL);
 		sb.append("[INVENTORY]").append(NL);
 		for (String fruit : FRUIT_NAMES) {
-			sb.append(fruit).append(" = ").append(quantityOf(fruit, inv.getIngredients())).append(NL);
+			sb.append(fruit).append(" = ").append(quantityOfIngredients(fruit, inv.getIngredients())).append(NL);
 		}
 		sb.append(NL);
 		for (String base : BASE_NAMES) {
-			sb.append(base).append(" = ").append(quantityOf(base, inv.getBases())).append(NL);
+			sb.append(base).append(" = ").append(quantityOfBase(base, inv.getBases())).append(NL);
 		}
 		sb.append(NL);
 		sb.append("TOTAL CAULDRONS = ").append(inv.getCauldrons().size()).append(NL);
@@ -53,8 +50,10 @@ public class SaveManager {
 
 		try {
 			Files.writeString(Path.of(fileName), sb.toString(), StandardCharsets.UTF_8);
+			System.out.println("Your progress has been saved to \"" + fileName + "\".");
 			return true;
 		} catch (IOException e) {
+			System.out.println("Error: your progress could not be saved to \"" + fileName + "\".");
 			return false;
 		}
 	}
@@ -79,6 +78,7 @@ public class SaveManager {
 	public static Player loadGame(String name, ArrayList<Recipe> allRecipes) {
 		Path path = Path.of(name + ".txt");
 		if (!Files.exists(path)) {
+			//System.out.println("The save file \"" + name + ".txt\" could not be found.");
 			return null;
 		}
 
@@ -88,8 +88,8 @@ public class SaveManager {
 			int crystals = 0;
 			int totalCauldrons = 0;
 			int usableCauldrons = 0;
-			ArrayList<InventoryItem> fruits = new ArrayList<>();
-			ArrayList<InventoryItem> bases = new ArrayList<>();
+			ArrayList<Ingredient> fruits = new ArrayList<>();
+			ArrayList<Base> bases = new ArrayList<>();
 			Spellbook spellbook = new Spellbook();
 			String section = "";
 
@@ -112,9 +112,9 @@ public class SaveManager {
 						String key = line.substring(0, line.indexOf('=')).trim();
 						int qty = Integer.parseInt(valueAfterEquals(line));
 						if (isBaseName(key)) {
-							bases.add(new InventoryItem(InventoryItem.TYPE_BASE, key, qty));
+							bases.add(new Base(key, qty));
 						} else {
-							fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, key, qty));
+							fruits.add(new Ingredient(key, qty));
 						}
 					} else if (section.equals("SPELLBOOK")) {
 						for (String idStr : line.split(",")) {
@@ -140,16 +140,28 @@ public class SaveManager {
 			Inventory inventory = new Inventory(fruits, bases, cauldrons);
 			inventory.setUsableCauldrons(usableCauldrons);
 
-			Player player = new Player(playerName, inventory, crystals, spellbook)
+			Player player = new Player(playerName, inventory, crystals, spellbook);
+			//System.out.println("The save file has been successfully loaded.");
 			return player;
 		} catch (IOException e) {
+			//System.out.println("Error: the save file \"" + name + ".txt\" could not be read.");
 			return null;
 		} catch (RuntimeException e) {
+			//System.out.println("Error: the save file \"" + name + ".txt\" is corrupted and could not be loaded.");
 			return null;
 		}
 	}
 
-	private static int quantityOf(String name, ArrayList<InventoryItem> items) {
+	private static int quantityOfIngredients(String name, ArrayList<Ingredient> items) {
+		for (InventoryItem item : items) {
+			if (item.getName().equals(name)) {
+				return item.getQuantity();
+			}
+		}
+		return 0;
+	}
+	
+	private static int quantityOfBase(String name, ArrayList<Base> items) {
 		for (InventoryItem item : items) {
 			if (item.getName().equals(name)) {
 				return item.getQuantity();
@@ -199,4 +211,5 @@ public class SaveManager {
 		}
 		return false;
 	}
+	
 }

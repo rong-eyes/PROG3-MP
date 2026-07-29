@@ -9,7 +9,7 @@ import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
+//import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -69,7 +69,7 @@ public class CustomPopUp{
 	
 	//WILL NEED TO EDIT THE POSITIONS
 	private JButton customButton(String path) {
-		JButton button = new JButton(new ImageIcon(new ImageIcon(getClass().getResource(path)).getImage().getScaledInstance(180, 45, Image.SCALE_SMOOTH)));
+		JButton button = new JButton(new ImageIcon(new ImageIcon(getClass().getResource(path)).getImage().getScaledInstance(90, 45, Image.SCALE_SMOOTH)));
 		button.setContentAreaFilled(false);
 		button.setFocusPainted(false);
 		button.setBorderPainted(false);
@@ -112,7 +112,7 @@ public class CustomPopUp{
     
     //default prompt yes no, just put what the program is asking for in string message
     public static boolean promptYesNo(Component parent, String message) {
-    	CustomPopUp cd = new CustomPopUp(parent, "Confirm?");
+    	CustomPopUp cd = new CustomPopUp(parent, message);
     	JLabel label = new JLabel(message);							//the prompt
     	cd.getContentPanel().add(label);
     	
@@ -139,15 +139,113 @@ public class CustomPopUp{
     	return result[0];
     }
 
-    //recursively remove default solid backgrounds; HELPER FUNCTION
-    public static void makeComponentsTransparent(Container container) {
-        for (Component comp : container.getComponents()) {
-            if (comp instanceof JPanel) {
-                ((JPanel) comp).setOpaque(false);
-            }
-            if (comp instanceof Container) {
-                makeComponentsTransparent((Container) comp);
-            }
-        }
+    public static int promptBrewOrBless(Component parent) {
+    	CustomPopUp cd = new CustomPopUp(parent, " ");
+    	
+    	JLabel label = new JLabel("Brew Concoction or Bless Cauldron?");
+        JButton brew = new JButton("Brew");
+        JButton bless = new JButton("Bless");
+        
+        label.setFont(new Font("Times New Roman", Font.BOLD, 20));
+        
+        final int[] result = new int[1];
+        brew.addActionListener(e -> {result[0] = 1;
+        							  cd.getDialog().dispose();});
+        brew.setVisible(true);
+        brew.setContentAreaFilled(false);
+        brew.setFocusPainted(false);
+        brew.setBorderPainted(false);
+        cd.getButtonPanel().add(brew);
+        
+        bless.addActionListener(e -> {result[0] = 2;
+									  cd.getDialog().dispose();});
+        bless.setVisible(true);
+        bless.setContentAreaFilled(false);
+        bless.setFocusPainted(false);
+        bless.setBorderPainted(false);
+        cd.getButtonPanel().add(bless);
+        
+        cd.getContentPanel().setLayout(new BorderLayout());
+        cd.getContentPanel().setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        cd.getContentPanel().add(label, BorderLayout.NORTH);		//adds the label to the content pane
+        cd.getContentPanel().add(cd.getButtonPanel(), BorderLayout.SOUTH);							//adds the eenter function to the contentpanel
+        
+        cd.getDialog().pack();
+        cd.getDialog().setLocationRelativeTo(null);
+        cd.getDialog().setVisible(true);
+        
+        return result[0];
+    }
+    
+    public static boolean promptBrewMode(Component parent) {
+    	CustomPopUp cd = new CustomPopUp(parent, " ");
+    	
+    	JLabel label = new JLabel("Creative Mode or Recipe Mode?");
+        JButton creative = new JButton("Creative");
+        JButton recipe = new JButton("Recipe");
+        
+        label.setFont(new Font("Times New Roman", Font.BOLD, 20));
+        
+        final boolean[] result = new boolean[1];
+        creative.addActionListener(e -> {result[0] = false;
+        							  cd.getDialog().dispose();});
+        creative.setVisible(true);
+        creative.setContentAreaFilled(false);
+        creative.setFocusPainted(false);
+        creative.setBorderPainted(false);
+        cd.getButtonPanel().add(creative);
+        
+        recipe.addActionListener(e -> {result[0] = true;
+									  cd.getDialog().dispose();});
+        recipe.setVisible(true);
+        recipe.setContentAreaFilled(false);
+        recipe.setFocusPainted(false);
+        recipe.setBorderPainted(false);
+        cd.getButtonPanel().add(recipe);
+        
+        cd.getContentPanel().setLayout(new BorderLayout());
+        cd.getContentPanel().setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        cd.getContentPanel().add(label, BorderLayout.NORTH);		//adds the label to the content pane
+        cd.getContentPanel().add(cd.getButtonPanel(), BorderLayout.SOUTH);							//adds the eenter function to the contentpanel
+        
+        cd.getDialog().pack();
+        cd.getDialog().setLocationRelativeTo(null);
+        cd.getDialog().setVisible(true);
+        
+        return result[0];
+    }
+    
+    public static int promptWelcome(Component parent, String p, boolean newGame) {
+    	CustomPopUp cd = new CustomPopUp(parent, "");
+    	
+    	JLabel label;
+    	
+    	if(newGame == true) {
+    		label = new JLabel("<html><div style='text-align:center;'>Welcome " + p + "! Your alchemy adventure begins. <br>Don't forget to click the back arrow before exiting to save!</div></html>");
+    	}else
+    		label = new JLabel("<html><div style='text-align:center;'>Welcome back " + p + "!<br>Don't forget to click the back arrow before exiting to save!</div></html>");
+        
+        JButton confirm = cd.customButton("/PotionProdigyAssets/UI Assets/Confirm.png");
+    	cd.getButtonPanel().setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
+    	cd.getButtonPanel().add(confirm);
+        
+        label.setFont(new Font("Times New Roman", Font.BOLD, 20));
+        
+        final int[] result = new int[1];
+        confirm.addActionListener(e -> {result[0] = 1;
+        							  cd.getDialog().dispose();});
+       
+        cd.getDialog().getRootPane().setDefaultButton(confirm); 		//changed the confirm button to 'ENTER' keyboard input
+        
+        cd.getContentPanel().setLayout(new BorderLayout());
+        cd.getContentPanel().setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        cd.getContentPanel().add(label, BorderLayout.NORTH);		//adds the label to the content pane
+        cd.getContentPanel().add(confirm, BorderLayout.SOUTH);							//adds the eenter function to the contentpanel
+        
+        cd.getDialog().pack();
+        cd.getDialog().setLocationRelativeTo(null);
+        cd.getDialog().setVisible(true);
+        
+        return result[0];
     }
 }

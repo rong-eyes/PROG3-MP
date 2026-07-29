@@ -23,14 +23,13 @@ public class TitleController {
 				// SWITCH TO HOMESCREEN
 				Player p = model.playerProfile(name);
 				SaveManager.saveGame(p);
-				main.HomeScreen(p);
+				main.HomeScreen(p, true);
 				break;
 			case 1:
 				boolean overwrite = view.promptOverWriteConfirm();
 				if(overwrite) {
 					Player overwrittenP = model.playerProfile(name);
-					SaveManager.saveGame(overwrittenP);
-					main.HomeScreen(overwrittenP);
+					main.HomeScreen(overwrittenP, true);
 				}
 				break;
 			case 2:
@@ -47,7 +46,7 @@ public class TitleController {
 		switch(scenario) {
 			case 0:
 				Player p = model.getCurrentPlayer();
-				main.HomeScreen(p);
+				main.HomeScreen(p, false);
 				break;
 			case 1:
 				boolean overwrite = view.promptNewGameConfirm();
@@ -55,7 +54,7 @@ public class TitleController {
 					model.playerProfile(name);
 	
 					Player overwrittenP = model.playerProfile(name);
-					main.HomeScreen(overwrittenP);
+					main.HomeScreen(overwrittenP, true);
 				}
 				break;
 			case 2:

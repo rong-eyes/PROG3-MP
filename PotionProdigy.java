@@ -23,10 +23,12 @@ public class PotionProdigy { //this should be the entry point of the projecct
 		
 		main.setLayout(screens);
 		PotionProdigy.add(main);
+		
+		TitleScreen();
+		
 		PotionProdigy.pack();
 		PotionProdigy.setLocationRelativeTo(null); //opens the application at the center of the user's screen
 		PotionProdigy.setVisible(true);//should be at the end
-	
 	}
 	
 	public void TitleScreen() {
@@ -38,12 +40,12 @@ public class PotionProdigy { //this should be the entry point of the projecct
 		screens.show(main, "TITLE");
 	}
 	
-	public void HomeScreen(Player player) {
+	public void HomeScreen(Player player, boolean newGame) {
 		this.setCurrentPlayer(player);
-		
-		HomeModel homeModel = new HomeModel();
+
 		HomePanel homeScreen = new HomePanel();
-		new HomeController(homeScreen, homeModel, this, player);
+		HomeModel homeModel = new HomeModel();
+		new HomeController(homeScreen, homeModel, this, player, newGame);
 		
 		main.add(homeScreen, "HOME");
 		screens.show(main, "HOME");

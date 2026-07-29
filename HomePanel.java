@@ -1,3 +1,4 @@
+//import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -35,33 +36,34 @@ public class HomePanel extends JPanel {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
 		this.setDoubleBuffered(true); //better game performance
 		
-		//clickable pouch is behind the fireplace, hence its before the jlabel instantiaion
-		JLabel pouch = new JLabel(new ImageIcon(getClass().getResource("/PotionProdigyAssets/UI Assets/Home Screen/Pouch.png")));
-		pouch.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		this.add(pouch);
-		
-		JLabel fireplace = new JLabel(new ImageIcon(getClass().getResource("/PotionProdigyAssets/UI Assets/Home Screen/Fireplace.png")));
-		this.add(fireplace);
-		
-		JLabel cabinet = new JLabel(new ImageIcon(getClass().getResource("/PotionProdigyAssets/UI Assets/Home Screen/Inventory.png")));
+		cabinet = makeLabel("/PotionProdigyAssets/UI Assets/Home Screen/Inventory.png", 720, 0);
 		cabinet.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		this.add(cabinet);
 		
-		JLabel cauldron = new JLabel(new ImageIcon(getClass().getResource("/PotionProdigyAssets/UI Assets/Home Screen/Cauldron.png")));
+		cauldron = makeLabel("/PotionProdigyAssets/UI Assets/Home Screen/Cauldron.png", 840, 554);
 		cauldron.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		this.add(cauldron);
 		
-		JLabel spellbook = new JLabel(new ImageIcon(getClass().getResource("/PotionProdigyAssets/UI Assets/Home Screen/Spellbook.png")));
+		spellbook = makeLabel("/PotionProdigyAssets/UI Assets/Home Screen/Spellbook.png", 10, 421);
 		spellbook.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		this.add(spellbook);
 		
-		JLabel clock = new JLabel(new ImageIcon(getClass().getResource("/PotionProdigyAssets/UI Assets/Home Screen/Cuckoo Clock.png")));
+		clock = makeLabel("/PotionProdigyAssets/UI Assets/Home Screen/Cuckoo Clock.png", 432, 17);
 		clock.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		this.add(clock);
 		
-		JLabel arrow = new JLabel(new ImageIcon(getClass().getResource("/PotionProdigyAssets/UI Assets/Home Screen/Back Arrow.png")));
+		arrow = makeLabel("/PotionProdigyAssets/UI Assets/Back Arrow.png", 20, 28);
 		arrow.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		this.add(arrow);
+		
+		JLabel fireplace = makeLabel("/PotionProdigyAssets/UI Assets/Home Screen/Fireplace.png", 712, 350);
+		this.add(fireplace);
+		
+		//clickable pouch is behind the fireplace, hence its before the jlabel instantiaion
+		pouch = makeLabel("/PotionProdigyAssets/UI Assets/Home Screen/Pouch.png", 421, 656);
+		pouch.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		this.add(pouch);
+		
 	}
 	
 	@Override
@@ -70,6 +72,19 @@ public class HomePanel extends JPanel {
 		if(bgImage != null) {
 			g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
 		}
+	}
+	
+	//HELPER FUNCTION BC ITS MAKING ME DIZZY
+	private JLabel makeLabel(String path, int posX, int posY) {
+		ImageIcon icon = new ImageIcon(getClass().getResource(path));
+		int imageWidth = (int)(icon.getIconWidth() * (screenWidth / 1280.0));
+		int imageHeight = (int)(icon.getIconHeight() * (screenHeight / 960.0));
+		int imageX = (int)(posX * (screenWidth / 1280.0));
+		int imageY = (int)(posY * (screenHeight / 960.0));
+		Image img = icon.getImage().getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
+		JLabel lbl = new JLabel(new ImageIcon(img));
+		lbl.setBounds(imageX, imageY, imageWidth, imageHeight);
+		return lbl;
 	}
 	
 	public void cabinetListener(MouseAdapter l) {

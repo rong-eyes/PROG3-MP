@@ -23,7 +23,7 @@ public class Cauldron {
 		this.isUsable = isUsable;
 	}
 
-	public InventoryItem getConcoctionBase() {
+	public Base getConcoctionBase() {
 		return concoctionBase;
 	}
 

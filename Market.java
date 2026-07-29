@@ -1,5 +1,3 @@
-package MCO1;
-
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -205,9 +203,9 @@ public class Market {
 		}
 
 		if (type <= LAST_FRUIT_INDEX) {
-			player.getInventory().addInventory(new InventoryItem(InventoryItem.TYPE_INGREDIENT, name, sellPrices[type], qty), qty);
+			player.getInventory().addInventory(new Ingredient(name, sellPrices[type], qty), qty);
 		} else {
-			player.getInventory().addInventory(new InventoryItem(InventoryItem.TYPE_BASE, name, sellPrices[type], qty), qty);
+			player.getInventory().addInventory(new Base( name, sellPrices[type], qty), qty);
 		}
 		player.setCrystals(player.getCrystals() - cost);
 		itemSlots[0][slotIndex] = EMPTY_SLOT; // the slot goes blank after a purchase
@@ -266,7 +264,12 @@ public class Market {
 			if (i < 0 || i >= sellables.size()) {
 				System.out.println("Item " + n + " does not exist; choose 1-" + sellables.size() + ".");
 			} else {
-				sellOneItem(sellables.get(i), player, s);
+				if(sellables.get(i) instanceof Base) {
+					sellOneBase((Base)sellables.get(i), player, s);
+				}else {
+					sellOneIngredient((Ingredient)sellables.get(i), player, s);
+				}
+				
 			}
 		}
 	}
@@ -279,7 +282,48 @@ public class Market {
 	* @param player name of the player where their inventory will be used/sold
  	* @param s input reader 
 	*/
-	private void sellOneItem(InventoryItem item, Player player, Scanner s) {
+	private void sellOneIngredient(Ingredient item, Player player, Scanner s) {
+		String name = item.getName();
+		int owned = item.getQuantity();
+		int price = item.getPrice();
+
+		if (owned <= 0) {
+			System.out.println("You no longer have any " + name + " to sell.");
+			return;
+		}
+
+		System.out.println("How many " + name + " would you like to sell? (you have: " + owned
+				+ ", " + price + " crystals each)");
+		int qty = readIntLine(s);
+		if (qty == NO_INPUT) {
+			System.out.println("No input received. Sale of " + name + " cancelled.");
+			return;
+		}
+		if (qty <= 0) {
+			System.out.println("Sale of " + name + " cancelled.");
+			return;
+		}
+		if (qty > owned) {
+			System.out.println("You only have " + owned + " " + name + "; sale cancelled.");
+			return;
+		}
+
+		int gain = qty * price;
+		player.getInventory().removeInventory(item, qty);
+		player.setCrystals(player.getCrystals() + gain);
+		System.out.println("Sold " + qty + " " + name + " for " + gain + " crystals. You now have "
+				+ player.getCrystals() + " crystals.");
+	}
+	
+	/**
+	* Handles the selling of a single selected inveotry item back to market. This checks if the player owns the item, 
+	* how much they want to sell, validates if the player is selling the right amount they own, and lastly this also removes
+	* the sold units from inventory.
+	* @param item the item you want to sell
+	* @param player name of the player where their inventory will be used/sold
+ 	* @param s input reader 
+	*/
+	private void sellOneBase(Base item, Player player, Scanner s) {
 		String name = item.getName();
 		int owned = item.getQuantity();
 		int price = item.getPrice();

@@ -1,10 +1,9 @@
-package MCO1;
 import java.util.ArrayList;
 
 public class Cauldron {
 	private boolean isUsable;
-	private InventoryItem concoctionBase;
-	private ArrayList<InventoryItem> ingredients;
+	private Base concoctionBase;
+	private ArrayList<Ingredient> ingredients;
 	private int cauldronNum;
 
 	/**
@@ -28,15 +27,15 @@ public class Cauldron {
 		return concoctionBase;
 	}
 
-	public void setConcoctionBase(InventoryItem concoctionBase) {
+	public void setConcoctionBase(Base concoctionBase) {
 		this.concoctionBase = concoctionBase;
 	}
 
-	public ArrayList<InventoryItem> getIngredients() {
+	public ArrayList<Ingredient> getIngredients() {
 		return ingredients;
 	}
 
-	public void setIngredients(ArrayList<InventoryItem> ingredients) {
+	public void setIngredients(ArrayList<Ingredient> ingredients) {
 		this.ingredients = ingredients;
 	}
 
@@ -58,7 +57,7 @@ public class Cauldron {
 	* @param ingredient the desired ingredient that the player wants to add to the cauldron
 	* @param inventory the player's inventory
 	*/
-	public void addIngredients(InventoryItem ingredient, Inventory inventory) {
+	public void addIngredients(Ingredient ingredient, Inventory inventory) {
 		if(ingredients.size() == 3) {
 			System.out.println("The cauldron is already full (3 ingredients).");
 		}else {
@@ -73,9 +72,9 @@ public class Cauldron {
 				System.out.println(ingredient.getName() + " is already in the cauldron; no duplicates allowed.");
 			}else {
 				int index;
-				ingredients.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, ingredient.getName(), 1));
+				ingredients.add(new Ingredient(ingredient.getName(), 1));
 				inventory.removeInventory(ingredient,1);
-				index = inventory.isInInventory(ingredient.getName(), inventory.getIngredients());
+				index = inventory.isInInventoryIngredient(ingredient.getName(), inventory.getIngredients());
 				int remaining = (index == -1) ? 0 : inventory.getIngredients().get(index).getQuantity();
 				System.out.println(ingredient.getName() + " added! Remaining: " + remaining);
 			}
@@ -112,7 +111,7 @@ public class Cauldron {
 	* @param inventory the player's inventory
 	*/
 	public void addBase(String base, Inventory inventory) {
-		this.concoctionBase = new InventoryItem(InventoryItem.TYPE_BASE, base, 1);
+		this.concoctionBase = new Base(base, 1);
 		inventory.removeInventory(this.concoctionBase, 1);
 	}
 

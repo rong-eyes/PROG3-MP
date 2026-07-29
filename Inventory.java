@@ -1,9 +1,8 @@
-package MCO1;
 import java.util.ArrayList;
 
 public class Inventory {
-	private ArrayList<InventoryItem> ingredients;
-	private ArrayList<InventoryItem> bases;
+	private ArrayList<Ingredient> ingredients;
+	private ArrayList<Base> bases;
 	private ArrayList<Cauldron> cauldrons;
 	private int usableCauldrons = 0;
 
@@ -23,7 +22,7 @@ public class Inventory {
 	* @param bases the stack for concoction base
 	* @param cauldrons holds the number of used and unused cauldrons
 	*/
-	public Inventory(ArrayList<InventoryItem> ingredients, ArrayList<InventoryItem> bases, ArrayList<Cauldron> cauldrons) {
+	public Inventory(ArrayList<Ingredient> ingredients, ArrayList<Base> bases, ArrayList<Cauldron> cauldrons) {
 		this.ingredients = ingredients;
 		this.bases = bases;
 		this.cauldrons = cauldrons;
@@ -33,19 +32,19 @@ public class Inventory {
 		}
 	}
 
-	public ArrayList<InventoryItem> getIngredients() {
+	public ArrayList<Ingredient> getIngredients() {
 		return ingredients;
 	}
 
-	public void setIngredients(ArrayList<InventoryItem> ingredients) {
+	public void setIngredients(ArrayList<Ingredient> ingredients) {
 		this.ingredients = ingredients;
 	}
 
-	public ArrayList<InventoryItem> getBases() {
+	public ArrayList<Base> getBases() {
 		return bases;
 	}
 
-	public void setBases(ArrayList<InventoryItem> bases) {
+	public void setBases(ArrayList<Base> bases) {
 		this.bases = bases;
 	}
 
@@ -65,6 +64,7 @@ public class Inventory {
 		this.usableCauldrons = usableCauldrons;
 	}
 
+	//INGREDIENT
 	/**
 	* Looks for the item, and checks if their amount is greater than 0.
 	* If it's less than 0, it will return -1, if not, it will return 
@@ -74,9 +74,29 @@ public class Inventory {
 	* @return the index of the item if it's greater than 0, but returns -1 if less than 
 	* 	           or equal to zero
 	*/
-	public int isInInventory(String name, ArrayList<InventoryItem> items) { 
+	public int isInInventoryIngredient(String name, ArrayList<Ingredient> items) { 
 		for(int i = 0; i < items.size(); i++) {
-			InventoryItem item = items.get(i);
+			Ingredient item = items.get(i);
+			if(name.equals(item.getName()) && item.getQuantity() > 0)
+				return i;
+		}
+
+		return -1;
+	}
+	
+	//BASE
+	/**
+	* Looks for the item, and checks if their amount is greater than 0.
+	* If it's less than 0, it will return -1, if not, it will return 
+	* the index number where the item is located.
+	* @param name the item name that needs to be looked for
+	* @param items list for items to use for searching
+	* @return the index of the item if it's greater than 0, but returns -1 if less than 
+	* 	           or equal to zero
+	*/
+	public int isInInventoryBase(String name, ArrayList<Base> items) { 
+		for(int i = 0; i < items.size(); i++) {
+			Base item = items.get(i);
 			if(name.equals(item.getName()) && item.getQuantity() > 0)
 				return i;
 		}
@@ -92,7 +112,23 @@ public class Inventory {
 	* @return the index number if the item is found, but if the item is not part of the
 	*            list, it will return -1 
 	*/
-	private int indexByName(String name, ArrayList<InventoryItem> items) {
+	private int indexByNameIngredient(String name, ArrayList<Ingredient> items) {
+		for(int i = 0; i < items.size(); i++) {
+			if(name.equals(items.get(i).getName()))
+				return i;
+		}
+		return -1;
+	}
+	
+	/**
+	* Checks if the items is in the list, regardless of it's quantity. 
+	* This is a helper function used to compare if your the name you are looking for is there.
+	* @param name item's name that you are looking for
+	* @param items array of items to use for searching
+	* @return the index number if the item is found, but if the item is not part of the
+	*            list, it will return -1 
+	*/
+	private int indexByNameBase(String name, ArrayList<Base> items) {
 		for(int i = 0; i < items.size(); i++) {
 			if(name.equals(items.get(i).getName()))
 				return i;
@@ -100,20 +136,8 @@ public class Inventory {
 		return -1;
 	}
 
-	/**
-	* Looks for which type the item exists. Specifically if it's for bases or ingredients.
-	* @param item the item where you want to know which type it belongs to, if it's base
-	*		or ingredients
-	* @return the inventory's list for your base or ingredient
-	*/
-	private ArrayList<InventoryItem> listFor(InventoryItem item) { 
-		if (item.getType().equals(InventoryItem.TYPE_BASE)){
-			return bases;
-		} else {
-			return ingredients;
-		}
-	}
 
+	//INGREDIENTs
 	/**
 	* Adds new stock to the player's inventory, by placing it in it's base or ingredients type
 	* and searches for a space for you to put the item. It doesnt creates a new entry if the item exist
@@ -121,14 +145,13 @@ public class Inventory {
 	* @param item name of the item you want to add
 	* @param amount the quantity of your item that you want to add
 	*/
-	public void addInventory(InventoryItem item, int amount) { 
-		ArrayList<InventoryItem> target = listFor(item);
-		int index = this.indexByName(item.getName(), target);
+	public void addInventory(Ingredient item, int amount) { 
+		int index = this.indexByNameIngredient(item.getName(), this.ingredients);
 		if(index != -1)
-			target.get(index).addQuantity(amount);
+			this.ingredients.get(index).addQuantity(amount);
 		else {
 			item.setQuantity(amount);
-			target.add(item);
+			this.ingredients.add(item);
 		}
 	}
 
@@ -137,11 +160,39 @@ public class Inventory {
 	* @param item the item you will be deducting from the player's inventory
 	* @param amount the quantity of how much items you will deduct from the player's inventory
 	*/
-	public void removeInventory(InventoryItem item, int amount) {
-		ArrayList<InventoryItem> target = listFor(item);
-		int index = this.indexByName(item.getName(), target);
+	public void removeInventory(Ingredient item, int amount) {
+		int index = this.indexByNameIngredient(item.getName(), this.ingredients);
 		if(index != -1)
-			target.get(index).deductQuantity(amount);
+			this.ingredients.get(index).deductQuantity(amount);
+	}
+	
+	//BASE
+	/**
+	* Adds new stock to the player's inventory, by placing it in it's base or ingredients type
+	* and searches for a space for you to put the item. It doesnt creates a new entry if the item exist
+	* before, but if it's a new item, it adds it in the list.
+	* @param item name of the item you want to add
+	* @param amount the quantity of your item that you want to add
+	*/
+	public void addInventory(Base item, int amount) { 
+		int index = this.indexByNameBase(item.getName(), this.bases);
+		if(index != -1)
+			this.bases.get(index).addQuantity(amount);
+		else {
+			item.setQuantity(amount);
+			this.bases.add(item);
+		}
+	}
+
+	/**
+	* Removes items out of the players's inventory, by using it for brewing a drink or selling a product.
+	* @param item the item you will be deducting from the player's inventory
+	* @param amount the quantity of how much items you will deduct from the player's inventory
+	*/
+	public void removeInventory(Base item, int amount) {
+		int index = this.indexByNameBase(item.getName(), this.bases);
+		if(index != -1)
+			this.bases.get(index).deductQuantity(amount);
 	}
 
 	/**

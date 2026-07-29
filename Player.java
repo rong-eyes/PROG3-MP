@@ -2,7 +2,6 @@
  * Potion Prodigy (MCO1) - Player.java
  * A player: name, crystals, inventory, spellbook, and their actions.
  */
-package MCO1;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Random;
@@ -25,23 +24,23 @@ public class Player {
 		playerName = name;
 		crystals = 5000;
 
-		ArrayList<InventoryItem> fruits = new ArrayList<>();
-		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "STRAWBERRY", 3));
-		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "ORANGE", 2));
-		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "LEMON", 2));
-		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "BANANA", 3));
-		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "MANGO", 1));
-		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "PINEAPPLE", 0));
-		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "KIWI", 1));
-		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "BLUEBERRY", 3));
-		fruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, "COCONUT", 0));
+		ArrayList<Ingredient> fruits = new ArrayList<>();
+		fruits.add(new Ingredient("STRAWBERRY", 3));
+		fruits.add(new Ingredient("ORANGE", 2));
+		fruits.add(new Ingredient("LEMON", 2));
+		fruits.add(new Ingredient("BANANA", 3));
+		fruits.add(new Ingredient("MANGO", 1));
+		fruits.add(new Ingredient("PINEAPPLE", 0));
+		fruits.add(new Ingredient("KIWI", 1));
+		fruits.add(new Ingredient("BLUEBERRY", 3));
+		fruits.add(new Ingredient("COCONUT", 0));
 
-		ArrayList<InventoryItem> bases = new ArrayList<>();
-		bases.add(new InventoryItem(InventoryItem.TYPE_BASE, "SYRUP BASE", 3));
-		bases.add(new InventoryItem(InventoryItem.TYPE_BASE, "BUBBLE BASE", 3));
-		bases.add(new InventoryItem(InventoryItem.TYPE_BASE, "PERFUME BASE", 1));
-		bases.add(new InventoryItem(InventoryItem.TYPE_BASE, "MILK BASE", 2));
-		bases.add(new InventoryItem(InventoryItem.TYPE_BASE, "LOTION BASE", 2));
+		ArrayList<Base> bases = new ArrayList<>();
+		bases.add(new Base("SYRUP BASE", 3));
+		bases.add(new Base("BUBBLE BASE", 3));
+		bases.add(new Base("PERFUME BASE", 1));
+		bases.add(new Base("MILK BASE", 2));
+		bases.add(new Base("LOTION BASE", 2));
 
 		ArrayList<Cauldron> cauldrons = new ArrayList<>();
 		for (int i = 0; i < 3; i++) {
@@ -241,7 +240,7 @@ public class Player {
 					System.out.println("Invalid choice. Enter 1-5, or 0 to cancel.");
 				} else {
 					String candidate = baseNames[opt - 1];
-					if (inventory.isInInventory(candidate, inventory.getBases()) != -1) {
+					if (inventory.isInInventoryBase(candidate, inventory.getBases()) != -1) {
 						chosenBase = candidate;
 						System.out.println(chosenBase + " selected as your concoction base.");
 					} else {
@@ -251,7 +250,7 @@ public class Player {
 			}
 		}
 
-		ArrayList<InventoryItem> chosenFruits = new ArrayList<>();
+		ArrayList<Ingredient> chosenFruits = new ArrayList<>();
 		boolean doneAdding = false;
 		while (!doneAdding) {
 			System.out.println("Fruits in the cauldron: " + fruitListString(chosenFruits)
@@ -283,10 +282,10 @@ public class Player {
 					String fruit = fruitNames[opt - 1];
 					if (containsName(chosenFruits, fruit)) {
 						System.out.println(fruit + " is already in the cauldron; no duplicates allowed.");
-					} else if (inventory.isInInventory(fruit, inventory.getIngredients()) == -1) {
+					} else if (inventory.isInInventoryIngredient(fruit, inventory.getIngredients()) == -1) {
 						System.out.println("You don't own any " + fruit + ". Choose a fruit you own.");
 					} else {
-						chosenFruits.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, fruit, 1));
+						chosenFruits.add(new Ingredient(fruit, 1));
 						System.out.println(fruit + " added to the cauldron.");
 
 						if (chosenFruits.size() == 3) {
@@ -320,11 +319,11 @@ public class Player {
 			return;
 		}
 
-		inventory.removeInventory(new InventoryItem(InventoryItem.TYPE_BASE, chosenBase, 1), 1);
+		inventory.removeInventory(new Base(chosenBase, 1), 1);
 		for (int i = 0; i < chosenFruits.size(); i++) {
-			inventory.removeInventory(new InventoryItem(InventoryItem.TYPE_INGREDIENT, chosenFruits.get(i).getName(), 1), 1);
+			inventory.removeInventory(new Ingredient(chosenFruits.get(i).getName(), 1), 1);
 		}
-		cauldron.setConcoctionBase(new InventoryItem(InventoryItem.TYPE_BASE, chosenBase, 1));
+		cauldron.setConcoctionBase(new Base(chosenBase, 1));
 		cauldron.setIngredients(chosenFruits);
 
 		Recipe result = cauldron.validBrew(Recipes);
@@ -365,7 +364,7 @@ public class Player {
 				"PINEAPPLE", "KIWI", "BLUEBERRY", "COCONUT"};
 		Random rng = new Random();
 		String pick = fruitNames[rng.nextInt(fruitNames.length)];
-		inventory.addInventory(new InventoryItem(InventoryItem.TYPE_INGREDIENT, pick, 1), 1);
+		inventory.addInventory(new Ingredient(pick, 1), 1);
 		loginBonusClaimed = true;
 		System.out.println("Login bonus claimed! You received 1 " + pick + ".");
 	}
@@ -377,10 +376,10 @@ public class Player {
 	* @return true if the player has the items; false otherwise
 	*/
 	private boolean hasSufficientIngredients(Recipe recipe) {
-		if (quantityOwned(recipe.getConcoctionBase().getName(), inventory.getBases()) < 1) {
+		if (quantityOwnedBase(recipe.getConcoctionBase().getName(), inventory.getBases()) < 1) {
 			return false;
 		}
-		ArrayList<InventoryItem> needed = recipe.getIngredients();
+		ArrayList<Ingredient> needed = recipe.getIngredients();
 		for (int i = 0; i < needed.size(); i++) {
 			String name = needed.get(i).getName();
 			int required = 0;
@@ -389,7 +388,7 @@ public class Player {
 					required++;
 				}
 			}
-			if (quantityOwned(name, inventory.getIngredients()) < required) {
+			if (quantityOwnedIngredient(name, inventory.getIngredients()) < required) {
 				return false;
 			}
 		}
@@ -403,7 +402,23 @@ public class Player {
 	* @param items the list of items the player has
 	* @return the quantity of the items; 0 if the player posesses none
 	*/
-	private int quantityOwned(String name, ArrayList<InventoryItem> items) {
+	private int quantityOwnedIngredient(String name, ArrayList<Ingredient> items) {
+		for (int i = 0; i < items.size(); i++) {
+			if (items.get(i).getName().equals(name)) {
+				return items.get(i).getQuantity();
+			}
+		}
+		return 0;
+	}
+	
+	/**
+	* Counts how much of the item being asked that the player has.
+	*
+	* @param name name of the item
+	* @param items the list of items the player has
+	* @return the quantity of the items; 0 if the player posesses none
+	*/
+	private int quantityOwnedBase(String name, ArrayList<Base> items) {
 		for (int i = 0; i < items.size(); i++) {
 			if (items.get(i).getName().equals(name)) {
 				return items.get(i).getQuantity();
@@ -419,7 +434,7 @@ public class Player {
 	* @param name the ingredient being checked for
 	* @return true if the player has it; false otherwise
 	*/
-	private boolean containsName(ArrayList<InventoryItem> fruits, String name) {
+	private boolean containsName(ArrayList<Ingredient> fruits, String name) {
 		for (int i = 0; i < fruits.size(); i++) {
 			if (fruits.get(i).getName().equals(name)) {
 				return true;
@@ -434,7 +449,7 @@ public class Player {
 	* @param fruits list of ingredients that the player has
 	* @return the string of comma separated values; returns "none" if the list is empty.
 	*/
-	private String fruitListString(ArrayList<InventoryItem> fruits) {
+	private String fruitListString(ArrayList<Ingredient> fruits) {
 		if (fruits.isEmpty()) {
 			return "(none)";
 		}

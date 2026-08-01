@@ -6,15 +6,12 @@ public class HomeController {
 	private HomeModel model;
 	private PotionProdigy main;
 	private Player currentPlayer;
-	private boolean newGame;
 	
-	public HomeController(HomePanel view, HomeModel model, PotionProdigy main, Player p, boolean newGame) {
+	public HomeController(HomePanel view, HomeModel model, PotionProdigy main, Player p) {
 		this.view = view;
 		this.model= model;
 		this.main = main;
 		this.currentPlayer = p;
-		this.newGame = newGame;
-		
 		
 		view.cabinetListener(new MouseAdapter() {
 			@Override
@@ -58,9 +55,6 @@ public class HomeController {
 			}
 		});
 		
-		while(this.promptWelcome() == 0) {
-			
-		}
 	}
 	
 	public void checkInventory() {
@@ -87,7 +81,7 @@ public class HomeController {
 	}
 	
 	public void checkSpellbook() {
-		
+		this.main.SpellbookScreen(getCurrentPlayer());
 	}
 	
 	public void collectLogin() {
@@ -98,10 +92,6 @@ public class HomeController {
 		//saves the game when pressing arrow
 		SaveManager.saveGame(getCurrentPlayer());
 		this.main.TitleScreen();
-	}
-	
-	public int promptWelcome() {
-		return view.WelcomeMessage(this.currentPlayer.getPlayerName(), this.newGame);
 	}
 	
 	//PUT OTHER CODES ABOVE GETTER SETTERS

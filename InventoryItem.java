@@ -27,6 +27,7 @@ public class InventoryItem {
 		this(name, Market.sellPriceOf(name), quantity);
 	}
 
+	// setters and getters
 	public String getName() {
 		return name;
 	}

@@ -112,15 +112,18 @@ public class SpellbookModel {
 		return String.format("[%03d]  %s", r.getConcoctionID(), r.getName());
 	}
 
+	
 	/**
 	* Formats the full details of a recipe for the right page of the book.
 	*
 	* @param r the recipe being formatted; null if the player has not selected one yet
 	* @return the details to be displayed on the right page
 	*/
+	
+	
 	public String recipeDetail(Recipe r) {
 		if(r == null)
-			return "Pick a recipe from the list to read up on it.";
+			return "";
 
 		return "<b>" + r.getName() + "</b><br><br>"
 				+ "Concoction ID: " + String.format("%03d", r.getConcoctionID()) + "<br><br>"

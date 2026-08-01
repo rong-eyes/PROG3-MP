@@ -54,47 +54,100 @@ public class HomeController {
 				back();
 			}
 		});
-		
+
+		view.setCrystals(currentPlayer.getCrystals());
 	}
-	
+	/**
+	* This opens the Inventory scree, where the items the players own are listed.
+	*/
 	public void checkInventory() {
-		//insert code
+		this.main.InventoryScreen(getCurrentPlayer());
 	}
-	
+
+	/**
+	* This opens the market screen, where the player can buy and sell ingredients.
+	*/
 	public void visitMarket() {
-		//insert code
+		this.main.MarketScreen(getCurrentPlayer());
 	}
 	
+	/**
+	* Handles the player clicking the cauldron, which leads to either brewing or blessing.
+	* <p>
+	* Creative mode is only allowed when the player has more than one usable cauldron, because ruining the
+	* last one would leave the player with no way to brew at all. Blessing is only offered when there is a
+	* cauldron that actually needs it.
+	* </p>
+	*/
 	public void cauldronClick() {
 		int scenario = view.promptBrewOrBless();
-		
+
 		if(scenario == 1) { //Brew Concoction
+			if(!currentPlayer.hasUsableCauldron()) {
+				CustomPopUp.promptMessage(view, "Every cauldron you own is full of junk. Have one blessed before brewing again.");
+				return;
+			}
+
 			boolean isRecipe = view.promptBrewMode();
-			if(isRecipe) {
-				System.out.println("Recipe");
-			}else
-				System.out.println("Creative");
-			
+
+			if(!isRecipe && !currentPlayer.canBrewCreative()) {
+				CustomPopUp.promptMessage(view, "You only have one cauldron left that can be used. Experimenting could ruin it, "
+						+ "so stick to a spellbook recipe for now.");
+				return;
+			}
+
+			this.main.BrewScreen(getCurrentPlayer(), !isRecipe);
 		}else if(scenario == 2) { //Bless Cauldron
-			model.checkBrokenCauldrons(currentPlayer);
+			blessCauldron();
 		}
 	}
 	
+	/**
+	* Pays for the blessing of a cauldron that was ruined by a failed experiment.
+	*/
+	public void blessCauldron() {
+		if(!model.checkBrokenCauldrons(currentPlayer)) {
+			CustomPopUp.promptMessage(view, "None of your cauldrons need blessing right now.");
+			return;
+		}
+
+		boolean pushThrough = CustomPopUp.promptYesNo(view, "Have a cauldron blessed for "
+				+ Cauldron.BLESSING_COST + " crystals?");
+
+		if(pushThrough) {
+			boolean blessed = model.blessCauldron(currentPlayer);
+			view.setCrystals(currentPlayer.getCrystals());
+			CustomPopUp.promptMessage(view, model.blessMessage(blessed, currentPlayer));
+		}
+	}
+
+	/**
+	* opens the spellbook screen, this lists the resicpes the player has already unlocked
+	*/
 	public void checkSpellbook() {
 		this.main.SpellbookScreen(getCurrentPlayer());
 	}
-	
+
+	/**
+	* This claims the free ingredient when the login bonus is clicked
+	*/
 	public void collectLogin() {
-		//insert code
+		String pick = currentPlayer.claimLoginBonus();
+		CustomPopUp.promptMessage(view, model.loginMessage(pick));
 	}
 
 	public void back() {
 		//saves the game when pressing arrow
-		SaveManager.saveGame(getCurrentPlayer());
+		boolean saved = SaveManager.saveGame(getCurrentPlayer());
+		if(saved)
+			CustomPopUp.promptMessage(view, "Your progress has been saved to \"" + currentPlayer.getPlayerName() + ".txt\".");
+		else
+			CustomPopUp.promptMessage(view, "Your progress could not be saved. Check if the game folder is write protected.");
+
 		this.main.TitleScreen();
 	}
 	
-	//PUT OTHER CODES ABOVE GETTER SETTERS
+	// Setters and getters
 	public HomePanel getView() {
 		return view;
 	}

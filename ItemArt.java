@@ -2,7 +2,7 @@
 public class ItemArt { //looks up which image file belongs to which item
 
 	private static final String INGREDIENT_FOLDER = "/PotionProdigyAssets/Ingredients/";
-	private static final String CAULDRON_IMAGE = "/PotionProdigyAssets/UI Assets/Brewing Screen/Cauldron.png";
+	private static final String CAULDRON_IMAGE = "/PotionProdigyAssets/UI Assets/Cauldron Icon.png";
 
 	private static final String[] itemNames = {"STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO", "PINEAPPLE", "KIWI", "BLUEBERRY", "COCONUT",
 													"SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE", "CAULDRON"};

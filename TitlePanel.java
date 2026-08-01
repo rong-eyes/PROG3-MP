@@ -1,30 +1,26 @@
 import javax.swing.JPanel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-//import javax.swing.JOptionPane;
 import java.awt.Dimension;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.awt.Graphics;
 import java.awt.Image;
-//import java.awt.FlowLayout; 
-//import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-//import java.io.File;
+
 
 public class TitlePanel extends JPanel{ //the View for SaveManager / Title Screen
 
 	//SCREEN SETTING
-	final int screenWidth = 960; //ended up not using
+	final int screenWidth = 960; 
 	final int screenHeight = 720;
 	private Image bgImage; //replace with title screen file
-	//private ImageIcon newGameImg, loadGameImg;
 	private static final long serialVersionUID = 1L;
 	
 	private JButton newGameButton;
 	private JButton loadGameButton;
 	
-	public TitlePanel(/*String imageFile*/) {
+	public TitlePanel() {
 		try {
 			this.bgImage = ImageIO.read(getClass().getResource("/PotionProdigyAssets/UI Assets/Main Menu/BG.png"));
 		} catch (IOException e) {
@@ -39,12 +35,9 @@ public class TitlePanel extends JPanel{ //the View for SaveManager / Title Scree
 		//BUTTONS
 		// One single line to load, scale, wrap, and assign the image to the button		
 		this.newGameButton = createButton("/PotionProdigyAssets/UI Assets/Main Menu/New Game.png", 310, 440);
-		//this.newGameButton.addActionListener();
 		this.add(newGameButton);
 		
 		this.loadGameButton = createButton("/PotionProdigyAssets/UI Assets/Main Menu/Load Game.png", 310, 530);
-		//this.loadGameButton.addActionListener(e -> handleLoadGame());
-
 		this.add(loadGameButton);
 	}
 	
@@ -90,5 +83,9 @@ public class TitlePanel extends JPanel{ //the View for SaveManager / Title Scree
 	
 	public boolean promptNewGameConfirm() {
 		return CustomPopUp.promptYesNo(this, "No such save exists. Start a new game instead?");
+	}
+	
+	public int WelcomeMessage(String p, boolean newGame) {
+		return CustomPopUp.promptWelcome(this, p, newGame);
 	}
 }

@@ -55,6 +55,15 @@ public class TitleModel { //the model for the startup.Derived from MCO1 Main and
 		}
 	}
 	
+	/**
+	* Returns the list of valid recipes that was loaded when the game started.
+	*
+	* @return the list of every valid recipe in the game
+	*/
+	public ArrayList<Recipe> getAllRecipes() {
+		return this.allRecipes;
+	}
+
 	public Player playerProfile(String name) {
 		this.currentPlayer = new Player(name, allRecipes);
 		this.setGameStarted(true);

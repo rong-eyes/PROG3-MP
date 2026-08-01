@@ -40,19 +40,26 @@ public class PotionProdigy { //this should be the entry point of the projecct
 		screens.show(main, "TITLE");
 	}
 	
-	public void HomeScreen(Player player, boolean newGame) {
+	public void HomeScreen(Player player) {
 		this.setCurrentPlayer(player);
 
 		HomePanel homeScreen = new HomePanel();
 		HomeModel homeModel = new HomeModel();
-		new HomeController(homeScreen, homeModel, this, player, newGame);
+		new HomeController(homeScreen, homeModel, this, player);
 		
 		main.add(homeScreen, "HOME");
 		screens.show(main, "HOME");
 	}
 	
-	public void SpellbookScreen(/* Player player*/) {
+	public void SpellbookScreen(Player player) {
 		//add screens here
+		SpellbookPanel sbScreen = new SpellbookPanel(player.getSpellbook());
+		SpellbookModel sbModel = new SpellbookModel();
+		
+		new SpellbookController(sbModel, sbScreen, this, player);
+		
+		main.add(sbScreen, "SPELLBOOK");
+		screens.show(main, "SPELLBOOK");
 	}
 	
 	public void InventoryScreen(/* Player player*/) {

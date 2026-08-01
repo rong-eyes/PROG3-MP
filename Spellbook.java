@@ -1,4 +1,3 @@
-package MCO1;
 import java.util.ArrayList;
 
 public class Spellbook {
@@ -60,26 +59,33 @@ public class Spellbook {
 		return null; // recipe not found
 	}
 
-	public void printRecipes() {
-		System.out.println("========== SPELLBOOK ==========");
-		if (unlockedRecipes.isEmpty()) {
-			System.out.println("Your spellbook is empty.");
-			return;
-		}
-		for (int i = 0; i < unlockedRecipes.size(); i++) {
-			Recipe recipe = unlockedRecipes.get(i);
-			System.out.printf("[%03d] %s (%d crystals)%n",
-					recipe.getConcoctionID(), recipe.getName(), recipe.getPrice());
-			System.out.println("      Base: " + recipe.getConcoctionBase().getName());
-			StringBuilder ingredients = new StringBuilder();
-			for (int j = 0; j < recipe.getIngredients().size(); j++) {
-				if (j > 0) {
-					ingredients.append(", ");
-				}
-				ingredients.append(recipe.getIngredients().get(j).getName());
+	/**
+	* Checks whether a recipe has already been recorded in the spellbook.
+	*
+	* @param id the concoction ID being looked for
+	* @return true if the recipe is already unlocked; false otherwise
+	*/
+	public boolean hasRecipe(int id) {
+		return getRecipe(id) != null;
+	}
+
+	/**
+	* Formats the ingredients of a recipe on a single line, which is how the spellbook displays them.
+	*
+	* @param recipe the recipe whose ingredients are being listed
+	* @return the ingredient names separated by commas
+	*/
+	public static String ingredientsToString(Recipe recipe) {
+		StringBuilder ingredients = new StringBuilder();
+
+		for (int i = 0; i < recipe.getIngredients().size(); i++) {
+			if (i > 0) {
+				ingredients.append(", ");
 			}
-			System.out.println("      Ingredients: " + ingredients);
+			ingredients.append(recipe.getIngredients().get(i).getName());
 		}
+
+		return ingredients.toString();
 	}
 
 	/**

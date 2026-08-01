@@ -1,15 +1,19 @@
-import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 
 public class Market {
+
+	public static final int TRANSACTION_OK = 0;
+	public static final int NOT_ENOUGH_CRYSTALS = 1;
+	public static final int NOT_ENOUGH_STOCK = 2;
+	public static final int NOTHING_IN_SLOT = 3;
+	public static final int NOT_ENOUGH_ITEMS = 4;
+	public static final int INVALID_AMOUNT = 5;
 
 	private static final int NUM_SLOTS = 8;
 	private static final int LAST_FRUIT_INDEX = 8;
 	private static final int CAULDRON_INDEX = 14;
 	private static final int EMPTY_SLOT = -1;
 	private static final int REFRESH_THRESHOLD = 3;
-	private static final int NO_INPUT = Integer.MIN_VALUE;
 
 	private static final String[] items = {"STRAWBERRY", "ORANGE", "LEMON", "BANANA", "MANGO", "PINEAPPLE", "KIWI", "BLUEBERRY", "COCONUT",
 	                                        "SYRUP BASE", "BUBBLE BASE", "PERFUME BASE", "MILK BASE", "LOTION BASE", "CAULDRON"};
@@ -32,7 +36,7 @@ public class Market {
 		initializeItems();
 	}
 
-	/*
+	/**
 	* Initializes the items to be sold at the market. Ensures that if a cauldron is being sold, it is only one and not more.
 	*
 	*/
@@ -41,325 +45,220 @@ public class Market {
 		for (int i = 0; i < NUM_SLOTS; i++) {
 			int pick;
 			if (cauldronPlaced)
-				pick = randomizer.nextInt(CAULDRON_INDEX);       
+				pick = randomizer.nextInt(CAULDRON_INDEX);
 			else
-				pick = randomizer.nextInt(CAULDRON_INDEX + 1);   
+				pick = randomizer.nextInt(CAULDRON_INDEX + 1);
 
 			itemSlots[0][i] = pick;
 			if (pick == CAULDRON_INDEX) {
-				itemSlots[1][i] = 1;                           
+				itemSlots[1][i] = 1;
 				cauldronPlaced = true;
 			} else {
-				itemSlots[1][i] = randomizer.nextInt(maxQty) + 1; 
+				itemSlots[1][i] = randomizer.nextInt(maxQty) + 1;
 			}
 		}
 	}
 
 	/**
-	* Record the number of successful brew. This is used to restock the shop in your next visit
+	* Records a successful brew. The count is used to decide whether the market restocks on the next visit.
+	*
 	*/
 	public void recordBrew() {
 		brewsSinceVisit++;
 	}
 
 	/**
-	* This opens the shop, and checks if the stock needs refreshing. This also lets the
-	* player to buy, sell or leave the shop.
-	* @param player name of the player
-	* @param s object that reads user input from scanner
+	* Restocks the market if the player has brewed enough concoctions since the last visit.
+	* <p>
+	* This is called every time the player enters the market. The brew count is reset on every visit whether
+	* or not the market was restocked, so brews beyond the required number do not carry over.
+	* </p>
+	*
+	* @return true if the market was restocked with new items; false if the previous stock remains
 	*/
-	public void marketMain(Player player, Scanner s) {
+	public boolean refreshIfNeeded() {
+		boolean refreshed = false;
+
 		if (brewsSinceVisit >= REFRESH_THRESHOLD) {
 			initializeItems();
-			System.out.println("The market has restocked with fresh items!");
+			refreshed = true;
 		}
-		brewsSinceVisit = 0; 
+		brewsSinceVisit = 0;
 
-		int option = 0;
-		while (option != 3) {
-			displayMarket();
-			System.out.println("What would you like to do?");
-			System.out.println("1. BUY   2. SELL   3. EXIT MARKET");
-			option = readIntLine(s);
-			if (option == NO_INPUT) {
-				System.out.println("Leaving the market.");
-				break;
-			}
-			switch (option) {
-				case 1:
-					buyItems(player, s);
-					break;
-				case 2:
-					sellItems(player, s);
-					break;
-				case 3:
-					System.out.println("You leave the market.");
-					break;
-				default:
-					System.out.println("Invalid choice. Please enter 1, 2, or 3.");
-					break;
-			}
-		}
-	}
-
-	private void displayMarket() {
-		System.out.println();
-		System.out.println("========================= THE MARKET =========================");
-		System.out.printf("%-4s%-18s%-15s%s%n", "", "Item", "Quantity", "Price");
-		for (int i = 0; i < NUM_SLOTS; i++) {
-			int type = itemSlots[0][i];
-			if (type == EMPTY_SLOT) {
-				System.out.printf("%-4s%-18s%n", (i + 1) + ".", "[ SOLD OUT ]");
-			} else {
-				String slotNum = (i + 1) + ".";
-				String qtyStr = "x " + itemSlots[1][i];
-				String priceStr = buyPrices[type] + " crystals each"; 
-
-				System.out.printf("%-4s%-18s%-15s%s%n", slotNum, items[type], qtyStr, priceStr);
-			}
-		}
-		System.out.println("=============================================================");
+		return refreshed;
 	}
 
 	/**
-	* Handles the buying transaction from the player to the market. If he item you want to buy is not empty,
-	* it will ask the player for the quantity. However if the item you want to buy is empty, it will say
-	* Slot x is sold out.
-	* @param player the player who wants to buy the items
-	* @param s input reader
+	* Returns how many slots the market displays.
+	*
+	* @return the number of market slots
 	*/
-	private void buyItems(Player player, Scanner s) {
-		System.out.println("Enter the slot number(s) of what items you want to buy, or 0 to go back \n(e.g. 1,2 = buy the FIRST and SECOND item in the list) ");
-		String line = readLineOrNull(s);
-		if (line == null || line.isEmpty() || line.equals("0")) {
-			System.out.println("Returning to the market menu.");
-			return;
-		}
-		ArrayList<Integer> picks = parseNumbers(line);
-		if (picks.isEmpty()) {
-			System.out.println("No valid slot numbers were entered.");
-			return;
-		}
-		for (int n : picks) {
-			int i = n - 1;
-			if (i < 0 || i >= NUM_SLOTS) {
-				System.out.println("Slot " + n + " does not exist; choose 1-" + NUM_SLOTS + ".");
-			} else if (itemSlots[0][i] == EMPTY_SLOT) {
-				System.out.println("Slot " + n + " is sold out; nothing to buy there.");
-			} else {
-				buyOneSlot(i, player, s);
-			}
-		}
+	public int getSlotCount() {
+		return NUM_SLOTS;
 	}
 
 	/**
-	* Handles the purchasing of item in the market. This method ensures wheter the item is a cauldron or an item. 
-	* This also validates all conditions such as input, stock and money of the player, and updates the player's 
-	* inventory, and clears the market slot.
-	* @param slotIndex the marketslot being purchased
-	* @param player name of the player where their inventory will be used/added
- 	* @param s input reader 
+	* Checks whether a slot has already been bought.
+	*
+	* @param slot the position of the slot being checked
+	* @return true if the slot no longer has stock; false otherwise
 	*/
-	private void buyOneSlot(int slotIndex, Player player, Scanner s) {
-		int type = itemSlots[0][slotIndex];
-		int stock = itemSlots[1][slotIndex];
+	public boolean isSlotEmpty(int slot) {
+		if (slot < 0 || slot >= NUM_SLOTS)
+			return true;
+
+		return itemSlots[0][slot] == EMPTY_SLOT;
+	}
+
+	/**
+	* Checks whether the item in a slot is a cauldron, since cauldrons are bought one at a time.
+	*
+	* @param slot the position of the slot being checked
+	* @return true if the slot holds a cauldron; false otherwise
+	*/
+	public boolean isSlotCauldron(int slot) {
+		if (isSlotEmpty(slot))
+			return false;
+
+		return itemSlots[0][slot] == CAULDRON_INDEX;
+	}
+
+	/**
+	* Returns the name of the item being sold in a slot.
+	*
+	* @param slot the position of the slot being checked
+	* @return the name of the item; an empty string if the slot is empty
+	*/
+	public String getSlotName(int slot) {
+		if (isSlotEmpty(slot))
+			return "";
+
+		return items[itemSlots[0][slot]];
+	}
+
+	/**
+	* Returns how many pieces of the item remain in a slot.
+	*
+	* @param slot the position of the slot being checked
+	* @return the quantity remaining in that slot; 0 if the slot is empty
+	*/
+	public int getSlotQuantity(int slot) {
+		if (isSlotEmpty(slot))
+			return 0;
+
+		return itemSlots[1][slot];
+	}
+
+	/**
+	* Returns how much the market charges for one piece of the item in a slot.
+	*
+	* @param slot the position of the slot being checked
+	* @return the cost of a single piece; 0 if the slot is empty
+	*/
+	public int getSlotPrice(int slot) {
+		if (isSlotEmpty(slot))
+			return 0;
+
+		return buyPrices[itemSlots[0][slot]];
+	}
+
+	/**
+	* Handles the purchase of items from one market slot.
+	* <p>
+	* The player's crystals and the remaining stock are both checked before the items are handed over. Once
+	* the purchase is completed, the slot is emptied even if the player did not take everything, and it stays
+	* empty until the next market refresh. Cauldrons are always bought one at a time.
+	* </p>
+	*
+	* @param slot the position of the slot being bought from
+	* @param amount the quantity being bought
+	* @param player the player making the purchase
+	* @return TRANSACTION_OK if the purchase was completed; otherwise the reason it was rejected
+	*/
+	public int buySlot(int slot, int amount, Player player) {
+		if (isSlotEmpty(slot))
+			return NOTHING_IN_SLOT;
+
+		int type = itemSlots[0][slot];
 		String name = items[type];
 		int price = buyPrices[type];
 
-		if (type == CAULDRON_INDEX) {
-			if (player.getCrystals() >= price) {
-				player.getInventory().addCauldron();
-				player.setCrystals(player.getCrystals() - price);
-				itemSlots[0][slotIndex] = EMPTY_SLOT;
-				System.out.println("Bought 1 " + name + " for " + price + " crystals. You now have "
-						+ player.getCrystals() + " crystals.");
-			} else {
-				System.out.println("You do not have enough crystals to buy a " + name
-						+ " (need " + price + ", have " + player.getCrystals() + ").");
-			}
-			return;
-		}
+		if (type == CAULDRON_INDEX)
+			amount = 1;
 
-		System.out.println("How many " + name + " would you like to buy? (available: x" + stock
-				+ ", " + price + " crystals each)");
-		int qty = readIntLine(s);
-		if (qty == NO_INPUT) {
-			System.out.println("No input received. Purchase of " + name + " cancelled.");
-			return;
-		}
-		if (qty <= 0) {
-			System.out.println("Purchase of " + name + " cancelled.");
-			return;
-		}
-		if (qty > stock) {
-			System.out.println("Only " + stock + " " + name + " in stock; purchase cancelled.");
-			return;
-		}
-		int cost = qty * price;
-		if (cost > player.getCrystals()) {
-			System.out.println("You do not have enough crystals to buy " + qty + " " + name
-					+ " (need " + cost + ", have " + player.getCrystals() + ").");
-			return;
-		}
+		if (amount <= 0)
+			return INVALID_AMOUNT;
 
-		if (type <= LAST_FRUIT_INDEX) {
-			player.getInventory().addInventory(new Ingredient(name, sellPrices[type], qty), qty);
-		} else {
-			player.getInventory().addInventory(new Base( name, sellPrices[type], qty), qty);
-		}
+		if (type != CAULDRON_INDEX && amount > itemSlots[1][slot])
+			return NOT_ENOUGH_STOCK;
+
+		int cost = amount * price;
+		if (cost > player.getCrystals())
+			return NOT_ENOUGH_CRYSTALS;
+
+		if (type == CAULDRON_INDEX)
+			player.getInventory().addCauldron();
+		else if (type <= LAST_FRUIT_INDEX)
+			player.getInventory().addInventory(new Ingredient(name, sellPrices[type], amount), amount);
+		else
+			player.getInventory().addInventory(new Base(name, sellPrices[type], amount), amount);
+
 		player.setCrystals(player.getCrystals() - cost);
-		itemSlots[0][slotIndex] = EMPTY_SLOT; // the slot goes blank after a purchase
-		System.out.println("Bought " + qty + " " + name + " for " + cost + " crystals. You now have "
-				+ player.getCrystals() + " crystals.");
+		itemSlots[0][slot] = EMPTY_SLOT; //the slot becomes empty after a purchase
+
+		return TRANSACTION_OK;
 	}
 
 	/**
-	* Handles the seeling of items from a player's inventory to the market for crystals.
-	* However, cauldrons cannot be sold, that is why it's not part of your sellable items
-	* @param player name of the player where their inventory will be used/sold
- 	* @param s input reader 
+	* Handles the sale of an item from the player's inventory back to the market.
+	* <p>
+	* Cauldrons never reach this method because they are not sellable items. The crystals given to the player
+	* follow the resale price in Appendix C, which every inventory item already stores.
+	* </p>
+	*
+	* @param item the inventory item being sold
+	* @param amount the quantity being sold
+	* @param player the player making the sale
+	* @return TRANSACTION_OK if the sale was completed; otherwise the reason it was rejected
 	*/
-	private void sellItems(Player player, Scanner s) {
-		Inventory inv = player.getInventory();
-		ArrayList<InventoryItem> sellables = new ArrayList<>();
-		for (InventoryItem ing : inv.getIngredients()) {
-			if (ing.getQuantity() > 0)
-				sellables.add(ing);
-		}
-		for (InventoryItem b : inv.getBases()) {
-			if (b.getQuantity() > 0)
-				sellables.add(b);
-		}
+	public int sellItem(InventoryItem item, int amount, Player player) {
+		if (item == null)
+			return NOTHING_IN_SLOT;
 
-		if (sellables.isEmpty()) {
-			System.out.println("You have nothing to sell.");
-			return;
-		}
+		if (amount <= 0)
+			return INVALID_AMOUNT;
 
-		System.out.println("----------------------- YOUR SELLABLE ITEMS -----------------------");
-		System.out.printf("%-4s%-28s%-20s%s%n", "", "Item", "Quantity", "Sell");
-		for (int i = 0; i < sellables.size(); i++) {
-			InventoryItem item = sellables.get(i);
-    		String numStr = (i + 1) + ".";
-   			String qtyStr = "x" + item.getQuantity();
-    		String priceStr = item.getPrice() + " crystals each";
-			
-			System.out.printf("%-4s%-28s%-20s%s%n", numStr, item.getName(), qtyStr, priceStr);	
-		}
-		System.out.println("-------------------------------------------------------------------");
-		System.out.println("Enter the slot number(s) of what items you want to sell, or 0 to go back\n" + //
-						"(e.g. 1,2 = sell the FIRST and SECOND item in the list)");
-		String line = readLineOrNull(s);
-		if (line == null || line.isEmpty() || line.equals("0")) {
-			System.out.println("Returning to the market menu.");
-			return;
-		}
-		ArrayList<Integer> picks = parseNumbers(line);
-		if (picks.isEmpty()) {
-			System.out.println("No valid item numbers were entered.");
-			return;
-		}
-		for (int n : picks) {
-			int i = n - 1;
-			if (i < 0 || i >= sellables.size()) {
-				System.out.println("Item " + n + " does not exist; choose 1-" + sellables.size() + ".");
-			} else {
-				if(sellables.get(i) instanceof Base) {
-					sellOneBase((Base)sellables.get(i), player, s);
-				}else {
-					sellOneIngredient((Ingredient)sellables.get(i), player, s);
-				}
-				
-			}
-		}
-	}
+		if (amount > item.getQuantity())
+			return NOT_ENOUGH_ITEMS;
 
-	/**
-	* Handles the selling of a single selected inveotry item back to market. This checks if the player owns the item, 
-	* how much they want to sell, validates if the player is selling the right amount they own, and lastly this also removes
-	* the sold units from inventory.
-	* @param item the item you want to sell
-	* @param player name of the player where their inventory will be used/sold
- 	* @param s input reader 
-	*/
-	private void sellOneIngredient(Ingredient item, Player player, Scanner s) {
-		String name = item.getName();
-		int owned = item.getQuantity();
-		int price = item.getPrice();
+		int gain = amount * item.getPrice();
 
-		if (owned <= 0) {
-			System.out.println("You no longer have any " + name + " to sell.");
-			return;
-		}
+		if (item instanceof Base)
+			player.getInventory().removeInventory((Base) item, amount);
+		else
+			player.getInventory().removeInventory((Ingredient) item, amount);
 
-		System.out.println("How many " + name + " would you like to sell? (you have: " + owned
-				+ ", " + price + " crystals each)");
-		int qty = readIntLine(s);
-		if (qty == NO_INPUT) {
-			System.out.println("No input received. Sale of " + name + " cancelled.");
-			return;
-		}
-		if (qty <= 0) {
-			System.out.println("Sale of " + name + " cancelled.");
-			return;
-		}
-		if (qty > owned) {
-			System.out.println("You only have " + owned + " " + name + "; sale cancelled.");
-			return;
-		}
-
-		int gain = qty * price;
-		player.getInventory().removeInventory(item, qty);
 		player.setCrystals(player.getCrystals() + gain);
-		System.out.println("Sold " + qty + " " + name + " for " + gain + " crystals. You now have "
-				+ player.getCrystals() + " crystals.");
+
+		return TRANSACTION_OK;
 	}
-	
+
 	/**
-	* Handles the selling of a single selected inveotry item back to market. This checks if the player owns the item, 
-	* how much they want to sell, validates if the player is selling the right amount they own, and lastly this also removes
-	* the sold units from inventory.
-	* @param item the item you want to sell
-	* @param player name of the player where their inventory will be used/sold
- 	* @param s input reader 
+	* Computes the cost of a purchase so that the screen can display the total before it is confirmed.
+	*
+	* @param slot the position of the slot being bought from
+	* @param amount the quantity being bought
+	* @return the total cost in crystals
 	*/
-	private void sellOneBase(Base item, Player player, Scanner s) {
-		String name = item.getName();
-		int owned = item.getQuantity();
-		int price = item.getPrice();
-
-		if (owned <= 0) {
-			System.out.println("You no longer have any " + name + " to sell.");
-			return;
-		}
-
-		System.out.println("How many " + name + " would you like to sell? (you have: " + owned
-				+ ", " + price + " crystals each)");
-		int qty = readIntLine(s);
-		if (qty == NO_INPUT) {
-			System.out.println("No input received. Sale of " + name + " cancelled.");
-			return;
-		}
-		if (qty <= 0) {
-			System.out.println("Sale of " + name + " cancelled.");
-			return;
-		}
-		if (qty > owned) {
-			System.out.println("You only have " + owned + " " + name + "; sale cancelled.");
-			return;
-		}
-
-		int gain = qty * price;
-		player.getInventory().removeInventory(item, qty);
-		player.setCrystals(player.getCrystals() + gain);
-		System.out.println("Sold " + qty + " " + name + " for " + gain + " crystals. You now have "
-				+ player.getCrystals() + " crystals.");
+	public int costOf(int slot, int amount) {
+		return getSlotPrice(slot) * amount;
 	}
 
 	/**
-	* Acts like a search function for the items in the Market. 
+	* Acts like a search function for the items in the Market.
+	*
 	* @param name the name of the item you want to find
-	* @return if the item is found, it will return it's index, but if not, it will return -1
+	* @return if the item is found, it will return its index, but if not, it will return -1
 	*/
 	private static int catalogIndexOf(String name) {
 		for (int i = 0; i < items.length; i++) {
@@ -370,74 +269,43 @@ public class Market {
 	}
 
 	/**
-	* Helper method that acts as the single source of truth for item resale prices. 
-	* This is done by giving the item name, and it will return how many crystals the 
+	* Helper method that acts as the single source of truth for item resale prices.
+	* This is done by giving the item name, and it will return how many crystals the
 	* player gets when selling it to the market.
+	*
 	* @param name the name of the item you are selling
-	* @return the index of how much you can sell your item
+	* @return the crystals the player receives for one piece; 0 if the item is not in the catalog
 	*/
 	public static int sellPriceOf(String name) {
 		int index = catalogIndexOf(name);
 		if (index < 0) {
-       		return 0;
-    	} else {
-        	return sellPrices[index];
-   		}
-	}
-
-	/**
-	* Helper method that takes the comma separated values and take the valid whole numbers ito an ArrayList<Integers>
-	* @param line the comma separated values (e.g. "1,2,3")
-	* @return ordered parsed numbers
-	*/
-	private ArrayList<Integer> parseNumbers(String line) {
-		ArrayList<Integer> nums = new ArrayList<>();
-		String[] parts = line.split(",");
-		for (String part : parts) {
-			String token = part.trim();
-			if (!token.isEmpty()) {
-				try {
-					nums.add(Integer.parseInt(token));
-				} catch (NumberFormatException e) {
-					System.out.println("'" + token + "' is not a valid number and was skipped.");
-				}
-			}
+			return 0;
+		} else {
+			return sellPrices[index];
 		}
-		return nums;
 	}
 
 	/**
-	* Clears up any useless spaces on the ends of a text
-	* @param s input reader 
-	* @return the string you entered without the extra space int he front and back
+	* Helper method that acts as the single source of truth for how much the market charges for an item.
+	*
+	* @param name the name of the item being bought
+	* @return the cost of one piece; 0 if the item is not in the catalog
 	*/
-	private String readLineOrNull(Scanner s) {
-		if (!s.hasNextLine())
-			return null;
-		return s.nextLine().trim();
-	}
-
-	/**
-	* This is an input validator, where it asks the player to input a number when the user kept on putting letters or 
-	* not a valid integer. This stops the program from going forward.
-	* @param s input reader  
-	* @return the valid integer the player typed, but if not, it will return "Invalid input. Please enter a number."
-	*/
-	private int readIntLine(Scanner s) {
-		while (true) {
-			String line = readLineOrNull(s);
-			if (line == null)
-				return NO_INPUT;
-			if (line.isEmpty()) {
-				System.out.println("Please enter a number.");
-			} else {
-				try {
-					return Integer.parseInt(line);
-				} catch (NumberFormatException e) {
-					System.out.println("Invalid input. Please enter a number.");
-				}
-			}
+	public static int buyPriceOf(String name) {
+		int index = catalogIndexOf(name);
+		if (index < 0) {
+			return 0;
+		} else {
+			return buyPrices[index];
 		}
+	}
+
+	/**
+	* Returns how many concoctions have been brewed since the player last visited the market.
+	*
+	* @return the number of brews since the last visit
+	*/
+	public int getBrewsSinceVisit() {
+		return brewsSinceVisit;
 	}
 }
-

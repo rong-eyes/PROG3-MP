@@ -1,6 +1,8 @@
 //import java.awt.Component;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
@@ -9,6 +11,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 public class HomePanel extends JPanel {
 	final int screenWidth = 960; 
@@ -16,12 +19,13 @@ public class HomePanel extends JPanel {
 	private Image bgImage; //replace with Home screen file
 	private static final long serialVersionUID = 1L;
 	
-	private JLabel cauldron;	//might change to an optionpane as it needs a dropdown
+	private JLabel cauldron;	
 	private JLabel cabinet;
 	private JLabel pouch;
 	private JLabel spellbook;
 	private JLabel clock;
 	private JLabel arrow;
+	private JLabel crystals;
 	private Player p;		    //just to pass info to the controller
 	
 	public HomePanel() {
@@ -36,6 +40,15 @@ public class HomePanel extends JPanel {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
 		this.setDoubleBuffered(true); //better game performance
 		
+		//THE CRYSTAL COUNT; the crystals must remain visible on the main menu at all times
+		crystals = new JLabel("", SwingConstants.CENTER);
+		crystals.setBounds(145, 40, 150, 26);
+		crystals.setFont(new Font("Times New Roman", Font.BOLD, 18));
+		crystals.setForeground(new Color(94, 47, 20));
+		this.add(crystals);
+
+		this.add(makeLabel("/PotionProdigyAssets/UI Assets/Merchant/Gem Counter.png", 150, 35));
+
 		cabinet = makeLabel("/PotionProdigyAssets/UI Assets/Home Screen/Inventory.png", 700, 0);
 		cabinet.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		this.add(cabinet);
@@ -74,7 +87,15 @@ public class HomePanel extends JPanel {
 		}
 	}
 	
-	//HELPER FUNCTION BC ITS MAKING ME DIZZY
+	/**
+	* Creates a label that displays an image and places it on the screen.
+	* The image and its position are resized from the 1280x960 resolution the artwork was drawn in.
+	*
+	* @param path the file location of the image
+	* @param posX the x position of the image, in the original 1280x960 resolution
+	* @param posY the y position of the image, in the original 1280x960 resolution
+	* @return the label containing the image, already positioned
+	*/
 	private JLabel makeLabel(String path, int posX, int posY) {
 		ImageIcon icon = new ImageIcon(getClass().getResource(path));
 		int imageWidth = (int)(icon.getIconWidth() * (screenWidth / 1280.0));
@@ -87,41 +108,85 @@ public class HomePanel extends JPanel {
 		return lbl;
 	}
 	
+	/**
+	* Displays the number of crystals the player currently has.
+	*
+	* @param amount the crystals the player has
+	*/
+	public void setCrystals(int amount) {
+		crystals.setText("" + amount);
+	}
+
+	/**
+	* Assigns the listener that responds when the player clicks the cabinet.
+	*
+	* @param l the listener to be attached to it
+	*/
 	public void cabinetListener(MouseAdapter l) {
 		cabinet.addMouseListener(l);
 	}
-	
+
+	/**
+	* Assigns the listener that responds when the player clicks the cauldron.
+	*
+	* @param l the listener to be attached to it
+	*/
 	public void cauldronListener(MouseAdapter l) {		//subject to change
 		cauldron.addMouseListener(l);
 	}
-	
+
+	/**
+	* Assigns the listener that responds when the player clicks the spellbook.
+	*
+	* @param l the listener to be attached to it
+	*/
 	public void spellbookListener(MouseAdapter l) {
 		spellbook.addMouseListener(l);
 	}
-	
+
+	/**
+	* Assigns the listener that responds when the player clicks the cuckoo clock.
+	*
+	* @param l the listener to be attached to it
+	*/
 	public void clockListener(MouseAdapter l) {
 		clock.addMouseListener(l);
 	}
-	
+
+	/**
+	* Assigns the listener that responds when the player clicks the pouch.
+	*
+	* @param l the listener to be attached to it
+	*/
 	public void pouchListener(MouseAdapter l) {
 		pouch.addMouseListener(l);
 	}
-	
+
+	/**
+	* Assigns the listener that responds when the player clicks the back arrow.
+	*
+	* @param l the listener to be attached to it
+	*/
 	public void arrowListener(MouseAdapter l) {
 		arrow.addMouseListener(l);
 	}
-	
-	
+
+	/**
+	* Asks the player whether to brew a concoction or bless a cauldron.
+	*
+	* @return 1 to brew a concoction; 2 to bless a cauldron; 0 if the pop up was closed
+	*/
 	public int promptBrewOrBless() {
 		return CustomPopUp.promptBrewOrBless(this);
 	}
-	
+
+	/**
+	* Asks the player which brewing mode to enter.
+	*
+	* @return true for recipe mode; false for creative mode
+	*/
 	public boolean promptBrewMode() {
 		return CustomPopUp.promptBrewMode(this);
-	}
-	
-	public int WelcomeMessage(String p, boolean newGame) {
-		return CustomPopUp.promptWelcome(this, p, newGame);
 	}
 
 	public Player getPlayer() {

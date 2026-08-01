@@ -49,7 +49,7 @@ public class SpellbookController {
 			}
 		});
 
-		view.setDetail(model.recipeDetail(null));
+		//view.setDetail(model.recipeDetail(null));
 		writePage();
 	}
 
@@ -70,7 +70,7 @@ public class SpellbookController {
 	}
 
 	/**
-	* Displays the details of the recipe the player clicked on the right page of the book.
+	* Displays the details of the recipe the player clicked on the left page of the book.
 	*
 	* @param row the position of the line the player clicked
 	*/
@@ -78,7 +78,7 @@ public class SpellbookController {
 		ArrayList<Recipe> page = model.recipesOnPage();
 
 		if(row < page.size())
-			view.setDetail(model.recipeDetail(page.get(row)));
+			view.RecipeDisplay(page.get(row));
 	}
 
 	/**

@@ -183,17 +183,17 @@ public class SpellbookPanel extends JPanel{
 		name = new JTextArea(r.getName());
 		name.setFont(new Font("Times New Roman",Font.BOLD, 36));
 		name.setForeground(new Color(105, 28, 32));
-		name.setBounds(550, 100, 300, 50);
+		name.setBounds(550, 100, 300, 250);
 		name.setOpaque(false);
 		name.setLineWrap(true);
 		name.setWrapStyleWord(true);
 		this.add(name);
 		
 		ImageIcon pTemp = new ImageIcon(getClass().getResource("/PotionProdigyAssets/Potions/" + r.getName() + ".png"));
-		Image img = pTemp.getImage().getScaledInstance(250, 200, Image.SCALE_SMOOTH);
+		Image img = pTemp.getImage().getScaledInstance(350, 200, Image.SCALE_SMOOTH);
 		
 		potion = new JLabel(new ImageIcon(img));
-		potion.setBounds(550, 175, img.getWidth(null), img.getHeight(null));
+		potion.setBounds(500, 200, img.getWidth(null), img.getHeight(null));
 		
 		this.add(potion);
 		

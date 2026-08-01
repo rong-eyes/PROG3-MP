@@ -23,13 +23,19 @@ public class TitleController {
 				// SWITCH TO HOMESCREEN
 				Player p = model.playerProfile(name);
 				SaveManager.saveGame(p);
-				main.HomeScreen(p, true);
+				while(this.promptWelcome(p, true) == 0) {
+					
+				}
+				main.HomeScreen(p);
 				break;
 			case 1:
 				boolean overwrite = view.promptOverWriteConfirm();
 				if(overwrite) {
 					Player overwrittenP = model.playerProfile(name);
-					main.HomeScreen(overwrittenP, true);
+					while(this.promptWelcome(overwrittenP, true) == 0) {
+						
+					}
+					main.HomeScreen(overwrittenP);
 				}
 				break;
 			case 2:
@@ -46,19 +52,30 @@ public class TitleController {
 		switch(scenario) {
 			case 0:
 				Player p = model.getCurrentPlayer();
-				main.HomeScreen(p, false);
+				
+				while(this.promptWelcome(p, false) == 0) {
+					
+				}
+				main.HomeScreen(p);
+				
 				break;
 			case 1:
 				boolean overwrite = view.promptNewGameConfirm();
 				if(overwrite) {
 					model.playerProfile(name);
-	
 					Player overwrittenP = model.playerProfile(name);
-					main.HomeScreen(overwrittenP, true);
+					while(this.promptWelcome(overwrittenP, true) == 0) {
+						
+					}
+					main.HomeScreen(overwrittenP);
 				}
 				break;
 			case 2:
 				break;
 		}
+	}
+	
+	public int promptWelcome(Player p, boolean newGame) {
+		return view.WelcomeMessage(p.getPlayerName(), newGame);
 	}
 }

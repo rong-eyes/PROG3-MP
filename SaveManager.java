@@ -53,7 +53,6 @@ public class SaveManager { //Title Panel Model
 			System.out.println("Your progress has been saved to \"" + fileName + "\".");
 			return true;
 		} catch (IOException e) {
-			System.out.println("Error: your progress could not be saved to \"" + fileName + "\".");
 			return false;
 		}
 	}
@@ -138,8 +137,7 @@ public class SaveManager { //Title Panel Model
 			}
 
 			Inventory inventory = new Inventory(fruits, bases, cauldrons);
-			inventory.setUsableCauldrons(usableCauldrons);
-
+			
 			Player player = new Player(playerName, inventory, crystals, spellbook);
 			//System.out.println("The save file has been successfully loaded.");
 			return player;

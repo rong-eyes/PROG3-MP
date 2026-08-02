@@ -1,10 +1,12 @@
-package MCO1;
 import java.util.ArrayList;
 
 public class Cauldron {
+	public static final int MAX_INGREDIENTS = 3;
+	public static final int BLESSING_COST = 1000;
+
 	private boolean isUsable;
-	private InventoryItem concoctionBase;
-	private ArrayList<InventoryItem> ingredients;
+	private Base concoctionBase;
+	private ArrayList<Ingredient> ingredients;
 	private int cauldronNum;
 
 	/**
@@ -16,104 +18,102 @@ public class Cauldron {
 		ingredients = new ArrayList<>();
 	}
 
-	public boolean isUsable() {
-		return isUsable;
-	}
-
-	public void setUsable(boolean isUsable) {
-		this.isUsable = isUsable;
-	}
-
-	public InventoryItem getConcoctionBase() {
-		return concoctionBase;
-	}
-
-	public void setConcoctionBase(InventoryItem concoctionBase) {
-		this.concoctionBase = concoctionBase;
-	}
-
-	public ArrayList<InventoryItem> getIngredients() {
-		return ingredients;
-	}
-
-	public void setIngredients(ArrayList<InventoryItem> ingredients) {
-		this.ingredients = ingredients;
-	}
-
-	public int getCauldronNum() {
-		return cauldronNum;
-	}
-
-	public void setCauldronNum(int cauldronNum) {
-		this.cauldronNum = cauldronNum;
-	}
-
 	/**
-	* Adds ingredient/s to the cauldron when brewing
+	* Adds a fruit to the cauldron while the player is still preparing a concoction.
 	* <p>
-	* Takes the desired ingredient from the player's inventory (if any). Doesn't add the ingredient if
-	* the cauldron is full or if theingredient is already in the cauldron.
+	* The fruit is removed from the player's inventory as soon as it is placed in the cauldron. Nothing is
+	* added if the cauldron is already full or if the same fruit is inside it, because a recipe cannot
+	* repeat an ingredient.
 	* </p>
 	*
-	* @param ingredient the desired ingredient that the player wants to add to the cauldron
+	* @param ingredient the fruit being added
 	* @param inventory the player's inventory
+	* @return true if the fruit was added; false if the cauldron is full or the fruit is a duplicate
 	*/
-	public void addIngredients(InventoryItem ingredient, Inventory inventory) {
-		if(ingredients.size() == 3) {
-			System.out.println("The cauldron is already full (3 ingredients).");
-		}else {
-			boolean isDuplicate = false;
-			for(int i = 0; i < ingredients.size() && isDuplicate != true; i++) {
-				if(ingredient.getName().equals(ingredients.get(i).getName())){
-					isDuplicate = true;
-				}
-			}
+	public boolean addIngredient(Ingredient ingredient, Inventory inventory) {
+		if(ingredients.size() == MAX_INGREDIENTS)
+			return false;
 
-			if(isDuplicate) {
-				System.out.println(ingredient.getName() + " is already in the cauldron; no duplicates allowed.");
-			}else {
-				int index;
-				ingredients.add(new InventoryItem(InventoryItem.TYPE_INGREDIENT, ingredient.getName(), 1));
-				inventory.removeInventory(ingredient,1);
-				index = inventory.isInInventory(ingredient.getName(), inventory.getIngredients());
-				int remaining = (index == -1) ? 0 : inventory.getIngredients().get(index).getQuantity();
-				System.out.println(ingredient.getName() + " added! Remaining: " + remaining);
-			}
-		}
+		if(hasIngredient(ingredient.getName()))
+			return false;
+
+		if(inventory.isInInventoryIngredient(ingredient.getName(), inventory.getIngredients()) == -1)
+			return false;
+
+		ingredients.add(new Ingredient(ingredient.getName(), 1));
+		inventory.removeInventory(ingredient, 1);
+
+		return true;
 	}
 
 	/**
-	* Removes ingredient/s to the cauldron when brewing
-	* <p>
-	* Removes an ingredient from the cauldron based on the user-inputted index and adds it back 
-	* to the player's inventory. The program will inform the player if there is nothign to remove.
-	* </p>
+	* Checks whether a fruit is already inside the cauldron.
+	*
+	* @param name the name of the fruit being looked for
+	* @return true if the fruit is already in the cauldron; false otherwise
+	*/
+	public boolean hasIngredient(String name) {
+		for(int i = 0; i < ingredients.size(); i++) {
+			if(ingredients.get(i).getName().equals(name))
+				return true;
+		}
+
+		return false;
+	}
+
+	/**
+	* Removes a fruit from the cauldron and returns it to the player's inventory.
 	*
 	* @param index the index of the ingredient to be removed
 	* @param inventory the player's inventory
+	* @return true if an ingredient was removed; false if the index does not refer to one
 	*/
-	public void removeIngredient(int index, Inventory inventory) {
-		if(ingredients.size() == 0) {
-			System.out.println("There is nothing to remove from the cauldron.");
-		}else {
-				inventory.addInventory(ingredients.get(index),1);
-				ingredients.remove(index);
-		}
+	public boolean removeIngredient(int index, Inventory inventory) {
+		if(index < 0 || index >= ingredients.size())
+			return false;
+
+		inventory.addInventory(ingredients.get(index), 1);
+		ingredients.remove(index);
+
+		return true;
 	}
 
 	/**
-	* Adds base to the cauldron when brewing
-	* <p>
-	* Removes an ingredient from the cauldron based on the user-inputted index and adds it back 
-	* to the player's inventory. The program will inform the player if there is nothign to remove.
-	* </p>
+	* Adds a concoction base to the cauldron and removes it from the player's inventory.
+	* If a base was added earlier, that one is returned to the inventory first so that it is not wasted.
 	*
-	* @param base the index of the ingredient to be removed
+	* @param base the name of the base being added
+	* @param inventory the player's inventory
+	* @return true if the base was added; false if the player no longer owns that base
+	*/
+	public boolean addBase(String base, Inventory inventory) {
+		if(inventory.isInInventoryBase(base, inventory.getBases()) == -1)
+			return false;
+
+		if(this.concoctionBase != null)
+			inventory.addInventory(this.concoctionBase, 1);
+
+		this.concoctionBase = new Base(base, 1);
+		inventory.removeInventory(this.concoctionBase, 1);
+
+		return true;
+	}
+
+	/**
+	* Returns everything currently in the cauldron to the player's inventory and empties the cauldron.
+	* This is called when the player cancels a brew instead of completing it.
+	*
 	* @param inventory the player's inventory
 	*/
-	public void addBase(String base, Inventory inventory) {
-		this.concoctionBase = new InventoryItem(InventoryItem.TYPE_BASE, base, 1);
-		inventory.removeInventory(this.concoctionBase, 1);
+	public void returnContents(Inventory inventory) {
+		if(this.concoctionBase != null)
+			inventory.addInventory(new Base(this.concoctionBase.getName(), 1), 1);
+
+		for(int i = 0; i < ingredients.size(); i++) {
+			inventory.addInventory(new Ingredient(ingredients.get(i).getName(), 1), 1);
+		}
+
+		cauldronFlush();
 	}
 
 	/**
@@ -161,26 +161,58 @@ public class Cauldron {
 		this.concoctionBase = null;
 		this.ingredients.removeAll(ingredients);
 	}
-	
+
 	/**
 	* Makes the cauldron usable again.
 	* <p>
-	* A cauldron is made unusable if a brew is invalid. Takes 1000 crystals from the player to make the cauldron usable again. If the player doesn't have enough crystals,
-	* they will be alerted.
+	* A cauldron becomes unusable when a brew is invalid. Blessing it costs the player 1000 crystals and makes
+	* it usable again. Nothing happens if the player cannot afford the blessing.
 	* </p>
-	* @param player the player who wants to have their cauldron blessed
+	*
+	* @param player the player paying for the blessing
+	* @return true if the cauldron was blessed; false if the player does not have enough crystals
 	*/
+	public boolean blessCauldron(Player player) {
+		if(player.getCrystals() < BLESSING_COST)
+			return false;
 
-	public void blessCauldron(Player player) {
-		if(player.getCrystals() >= 1000) {
-			player.setCrystals(player.getCrystals() - 1000);
-			cauldronFlush();
-			setUsable(true);
-			System.out.println("Your cauldron has been blessed and is usable again! 1000 crystals spent. "
-					+ "You now have " + player.getCrystals() + " crystals.");
-		}else {
-			System.out.println("You don't have enough crystals to bless your cauldron "
-					+ "(it costs 1000, you have " + player.getCrystals() + ").");
-		}
+		player.setCrystals(player.getCrystals() - BLESSING_COST);
+		cauldronFlush();
+		setUsable(true);
+
+		return true;
+	}
+
+	//PUT OTHER CODES ABOVE GETTER SETTERS
+	public boolean isUsable() {
+		return isUsable;
+	}
+
+	public void setUsable(boolean isUsable) {
+		this.isUsable = isUsable;
+	}
+
+	public Base getConcoctionBase() {
+		return concoctionBase;
+	}
+
+	public void setConcoctionBase(Base concoctionBase) {
+		this.concoctionBase = concoctionBase;
+	}
+
+	public ArrayList<Ingredient> getIngredients() {
+		return ingredients;
+	}
+
+	public void setIngredients(ArrayList<Ingredient> ingredients) {
+		this.ingredients = ingredients;
+	}
+
+	public int getCauldronNum() {
+		return cauldronNum;
+	}
+
+	public void setCauldronNum(int cauldronNum) {
+		this.cauldronNum = cauldronNum;
 	}
 }
